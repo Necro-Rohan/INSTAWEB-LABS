@@ -1,5 +1,5 @@
 import express from "express";
-import { renderSeoBlogPage } from "../controllers/seoController.js";
+import { renderSeoBlogPage } from "../controllers/SeoController.js";
 
 const router = express.Router();
 
