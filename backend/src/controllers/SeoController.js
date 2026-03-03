@@ -12,7 +12,7 @@ export const renderSeoBlogPage = async (req, res) => {
   try {
     const post = await BlogPost.findOne({ slug: req.params.slug });
     
-    const indexPath = path.resolve(__dirname, '../../../client/dist/index.html');
+    const indexPath = path.resolve(__dirname, '../../../frontend/dist/index.html');
     let htmlData = fs.readFileSync(indexPath, 'utf8');
 
     if (post) {

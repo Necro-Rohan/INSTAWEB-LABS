@@ -24,14 +24,14 @@ app.use('/api', aiRoute);
 
 // Frontend Serving & SEO Magic 
 // Static files serving
-app.use(express.static(path.resolve(__dirname, '../client/dist'), { index: false }));
+app.use(express.static(path.resolve(__dirname, '../frontend/dist'), { index: false }));
 
 // Blog page ka SEO injection 
 app.use('/', frontendRoutes);
 
 // Fallback Route 
 app.get(/^(.*)$/, (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
+  res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
