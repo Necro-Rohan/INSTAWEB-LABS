@@ -22,7 +22,7 @@ export default function BlogPage() {
           <h1 className="text-2xl font-bold">Post Not Found</h1>
           <Link
             stroke="currentColor"
-            to="/admin"
+            to="/"
             className="text-blue-600 underline"
           >
             Back to Dashboard
@@ -39,15 +39,15 @@ export default function BlogPage() {
     );
 
   return (
-    <div className="bg-white text-slate-900 font-sans antialiased min-h-screen">
+    <div className="bg-[#f6f6f8] text-slate-900 font-sans antialiased min-h-screen">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur-sm shadow-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-2">
             <div className="bg-blue-600 text-white p-1 rounded">
               <span className="block w-5 h-5 bg-white rounded-sm"></span>
             </div>
-            <span className="text-lg font-bold tracking-tight">
+            <span className="text-xl font-black tracking-tight">
               Instaweb Labs
             </span>
           </div>
@@ -55,7 +55,7 @@ export default function BlogPage() {
             href="https://websites.co.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-600 text-white px-4 py-2 rounded font-bold text-sm hover:bg-blue-700 transition inline-block"
+            className="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition inline-block shadow-md"
           >
             Get Started
           </a>
@@ -124,7 +124,8 @@ export default function BlogPage() {
       </main>
 
       <footer className="border-t border-slate-200 bg-slate-50 py-12 mt-12 text-center text-sm text-slate-500">
-        <p>© {new Date().getFullYear()} websites.co.in. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Instaweb Labs. All rights reserved.</p>
+        {/* <p>© 2026 Instaweb Labs. Built for Websites.co.in.</p> */}
       </footer>
     </div>
   );

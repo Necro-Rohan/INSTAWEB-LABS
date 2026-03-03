@@ -118,6 +118,14 @@ export default function AdminDashboard() {
               className="w-full px-4 py-3 rounded-lg border border-red-200 bg-red-50 focus:ring-2 focus:ring-red-500 disabled:opacity-50"
               placeholder="Enter the secret key"
             />
+
+            <button
+              type="button"
+              onClick={() => setSecretKey("admin_demo_2026")}
+              className="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1 rounded transition mt-2"
+            >
+              Admin Demo Key
+            </button>
           </div>
           <button
             type="submit"

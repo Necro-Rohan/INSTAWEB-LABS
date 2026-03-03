@@ -2,7 +2,6 @@ import { GoogleGenAI } from "@google/genai";
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Main yahan Gemini API initialize kar raha hoon apne key ke sath
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); 
 
 export async function generateSEOContent(adjective, category, geography) {
@@ -26,7 +25,7 @@ export async function generateSEOContent(adjective, category, geography) {
   - Use <h2> and <h3> tags for a strong hierarchical structure.
   - Use <ul> and <li> for benefits and features to make it skimmable.
   - For EVERY button/CTA, use this exact HTML structure: 
-    <a href="https://websites.co.in" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg my-4 inline-block text-center hover:bg-blue-700 transition">Start Building Your ${category} Website Now</a>
+    <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg my-4 inline-block text-center hover:bg-blue-700 transition">Start Building Your ${category} Website Now</a>
 
   **OUTPUT FORMAT:**
   You must return ONLY a strict JSON object with the following keys. No conversational text before or after.
@@ -40,8 +39,7 @@ export async function generateSEOContent(adjective, category, geography) {
   `;
 
   try {
-    // Gemini 1.5 Flash best hai kyunki hume speed chahiye 500 pages ke liye
-    // responseMimeType JSON rakhna zaroori hai warna API text de degi aur code phat jayega
+    // responseMimeType JSON rakhna zaroori hai warna API text de degi aur code crash ho skta hai
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
@@ -50,7 +48,6 @@ export async function generateSEOContent(adjective, category, geography) {
       },
     });
 
-    // const result = await model.generateContent(prompt);
     const responseText = response.text;
     
     // JSON parse karke bhej raha hoon taaki backend sidha save kar sake
