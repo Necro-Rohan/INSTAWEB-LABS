@@ -33,6 +33,7 @@ export const BlogGenerator = async (req, res) => {
       metaDescription: aiData.metaDescription,
       h1: aiData.h1,
       htmlContent: aiData.htmlContent,
+      status: "published"
     });
 
     await newPost.save();
