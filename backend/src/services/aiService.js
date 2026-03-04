@@ -22,7 +22,8 @@ export async function generateSEOContent(adjective, category, geography) {
 
   **HTML FORMATTING RULES:**
   - Output the content ENTIRELY in clean HTML (do not include markdown ticks like \`\`\`html).
-  - Use <h2> and <h3> tags for a strong hierarchical structure.
+  - STRICT RULE: NEVER use an <h1> tag inside the htmlContent. The main title is already handled on the frontend. 
+  - Start your content directly with an introductory paragraph, and use ONLY <h2> and <h3> tags for your subheadings to maintain a strong hierarchical structure.
   - Use <ul> and <li> for benefits and features to make it skimmable.
   - For EVERY button/CTA, use this exact HTML structure: 
     <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg my-4 inline-block text-center hover:bg-blue-700 transition">Start Building Your ${category} Website Now</a>
