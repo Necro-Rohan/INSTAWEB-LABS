@@ -24,6 +24,9 @@ const worker = new Worker('blog-generation-queue', async (job) => {
     // entire Master AI Pipeline
     const generatedData = await generateSEOContentPipeline(adjective, category, geography);
 
+    const imgMatch = generatedData.htmlContent.match(/<img[^>]+src="([^">]+)"/);
+    const coverImage = imgMatch ? imgMatch[1] : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80';
+
     // Save to MongoDB using the AI-generated SEO Data
     const newBlog = new BlogPost({
       adjective,
@@ -34,6 +37,7 @@ const worker = new Worker('blog-generation-queue', async (job) => {
       metaDescription: generatedData.metaDescription,
       h1: generatedData.h1,
       htmlContent: generatedData.htmlContent,
+      coverImage: coverImage,
       status: 'published'
     });
 

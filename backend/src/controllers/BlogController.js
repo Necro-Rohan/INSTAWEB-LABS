@@ -70,9 +70,8 @@ export const getAllBlogPosts = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const posts = await BlogPost.find({ status: "published" })
-      .select("-htmlContent")
       .sort({ createdAt: -1 })
-      .select("slug h1 metaDescription category geography createdAt")
+      .select("slug h1 metaDescription category geography createdAt coverImage")
       .skip(skip)
       .limit(limit)
       .lean();

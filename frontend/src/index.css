@@ -1,2 +1,17 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+
+/* to Prevent AI-generated tables from breaking mobile screens */
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Force long AI links or words to wrap instead of pushing the screen */
+.prose a, .prose p, .prose h2, .prose h3 {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}

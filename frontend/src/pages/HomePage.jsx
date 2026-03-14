@@ -6,7 +6,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  //paginations
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9); 
   const [totalPages, setTotalPages] = useState(0);
@@ -16,23 +16,19 @@ export default function HomePage() {
     const handleResize = () => {
       let newLimit = 9;
       if (window.innerWidth < 768) {
-        newLimit = 4;
-        setItemsPerPage(4); // Mobile
+        newLimit = 4; // Mobile
       } else if (window.innerWidth < 1024) {
-        newLimit = 6;
-        setItemsPerPage(6); // Tablet
+        newLimit = 6; // Tablet
       } else {
-        setItemsPerPage(9); // Desktop
+        newLimit = 9; // Desktop
       }
       setItemsPerPage((prevLimit) => {
-        // If the limit changes, i am also reseting the page to 1
-        // to avoid the "out of bounds" error natively!
         if (prevLimit !== newLimit) setCurrentPage(1);
         return newLimit;
       });
     };
 
-    handleResize(); // Run on mount
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -40,7 +36,6 @@ export default function HomePage() {
   useEffect(() => {
     const fetchBlogs = async () => {
       setLoading(true);
-    
       api.get(`/blogs?page=${currentPage}&limit=${itemsPerPage}`)
         .then((res) => {
           setPosts(res.data.posts);
@@ -62,14 +57,49 @@ export default function HomePage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const getPaginationGroup = () => {
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+
+    // If we are near the beginning, shift the window so we always show 5 buttons
+    if (currentPage <= 2) {
+      endPage = Math.min(totalPages, 5);
+    }
+    // If we are near the end, shift the window back
+    if (currentPage >= totalPages - 1) {
+      startPage = Math.max(1, totalPages - 4);
+    }
+
+    const pages = [];
+    if (startPage > 1) pages.push("..."); 
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < totalPages) pages.push("..."); 
+
+    return pages;
+  };
+
   return (
-    <div className="bg-[#f6f6f8] text-slate-900 font-sans antialiased min-h-screen flex flex-col">
-      {/* Top Navigation Bar (Matching the BlogPage) */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur-sm shadow-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <div className="bg-white text-slate-900 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-blue-600/20 selection:text-blue-700">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-12">
           <div className="flex items-center gap-2">
-            <img src='/InstaWeb-Labs-icon.svg' className='w-8 h-8'/>
-            <span className="text-xl font-black tracking-tight">InstaWeb Labs</span>
+            <Link to="/" className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center bg-blue-600 text-white rounded-lg shadow-sm">
+                <img
+                  src="/InstaWeb-Labs-icon.svg"
+                  className="w-5 h-5 invert brightness-0"
+                  alt="Logo"
+                />
+              </div>
+              <span className="text-xl font-black tracking-tight">
+                InstaWeb Labs
+              </span>
+            </Link>
           </div>
           <a
             href="https://websites.co.in"
@@ -77,117 +107,282 @@ export default function HomePage() {
             rel="noopener noreferrer"
             className="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition inline-block shadow-md"
           >
-            Get Started
+            Start Building
           </a>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="mx-auto max-w-6xl px-6 py-16 grow w-full">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-black mb-4 text-slate-900 tracking-tight">
-            Local Business Growth Guides
+      {/* Main Content Area */}
+      <main className="mx-auto max-w-7xl px-6 lg:px-12 pt-16 pb-10 grow w-full">
+        {/* Hero Section */}
+        <section className="mb-20 max-w-3xl ">
+          <h1
+            className="text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-slate-900 mb-6 italic"
+            style={{ fontFamily: "'Newsreader', serif" }}
+          >
+            Resource Center
           </h1>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Discover the best digital tools and website builders tailored specifically for your industry and city.
+          <p className="text-xl leading-relaxed text-slate-600 w-full">
+            Expert insights, editorial guides, and technical deep-dives on
+            building high-performance websites for the modern web.
           </p>
-        </div>
+        </section>
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
+        {/* Initial Load State (Only shows when completely empty) */}
+        {loading && posts.length === 0 ? (
+          <div className="flex justify-center items-center py-32">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <>
-          {/* Blog Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
-              <Link 
-                to={`/blog/${post.slug}`} 
-                key={post._id}
-                className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    {post.category}
-                  </span>
-                  <span className="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    {post.geography}
-                  </span>
-                </div>
-                <h2 className="text-xl font-bold text-slate-900 mb-3 leading-snug">
-                  {post.h1}
-                </h2>
-                <p className="text-slate-500 text-sm grow line-clamp-3 mb-6">
-                  {post.metaDescription}
-                </p>
-                <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
-                  <span className="text-blue-600 font-semibold hover:underline">Read Article →</span>
-                  <span className="text-slate-400">
-                    {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-          {totalPages > 1 && (
-              <div className="mt-16 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 pt-8">
-                <p className="text-sm text-slate-500">
-                  Showing <span className="font-semibold text-slate-900">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-semibold text-slate-900">{Math.min(currentPage * itemsPerPage, totalPosts)}</span> of <span className="font-semibold text-slate-900">{totalPosts}</span> guides
-                </p>
-                <div className="flex items-center gap-2">
+          /* Soft Loading Wrapper to Dim the grid instead of destroying it */
+          <div
+            className={`transition-opacity duration-300 ${loading ? "opacity-40 pointer-events-none" : "opacity-100"}`}
+          >
+            {/* Editorial Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+              {posts.map((post) => {
+                return (
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    key={post._id}
+                    className="group flex flex-col h-full"
+                  >
+                    {/* Image Wrapper */}
+                    <div className="aspect-[16/10] bg-slate-100 rounded-xl overflow-hidden mb-6 shadow-sm group-hover:shadow-xl transition-all duration-500 relative">
+                      <img
+                        src={post.coverImage}
+                        alt={post.h1}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
+
+                    {/* Meta Tags */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-blue-600">
+                        {post.category}
+                      </span>
+                      <span className="size-1 bg-slate-300 rounded-full"></span>
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                        {post.geography}
+                      </span>
+                    </div>
+
+                    {/* Typography */}
+                    <h3
+                      className="text-2xl font-semibold leading-snug text-slate-900 mb-3 group-hover:text-blue-600 transition-colors"
+                      style={{ fontFamily: "'Newsreader', serif" }}
+                    >
+                      {post.h1}
+                    </h3>
+                    <p className="text-[16px] text-slate-600 leading-relaxed line-clamp-2 mb-6 grow">
+                      {post.metaDescription}
+                    </p>
+
+                    {/* Author/Date Row */}
+                    <div className="mt-auto flex items-center gap-3 text-sm font-medium text-slate-500 border-t border-slate-100 pt-5">
+                      <div className="flex items-center gap-2">
+                        <div className="size-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-[10px]">
+                          W
+                        </div>
+                        <span className="text-slate-700">Websites Team</span>
+                      </div>
+                      <span>•</span>
+                      <span>
+                        {new Date(post.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Premium Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-15 flex flex-col justify-center gap-8 border-t border-slate-100 pt-10">
+                <div className="flex items-center justify-center gap-20">
                   <button
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 transition"
+                    className="hidden sm:flex items-center gap-2.5 text-sm font-bold text-slate-900 hover:text-blue-600 disabled:text-slate-300 disabled:cursor-not-allowed transition-colors"
                   >
-                    Previous
+                    ← Previous
                   </button>
-                  
-                  <div className="hidden sm:flex gap-2">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-                      <button
-                        key={number}
-                        onClick={() => paginate(number)}
-                        className={`px-4 py-2 border rounded-md text-sm font-medium transition ${
-                          currentPage === number
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        {number}
-                      </button>
-                    ))}
+
+                  <div className="flex items-center justify-around">
+                    {getPaginationGroup().map((number, index) =>
+                      number === "..." ? (
+                        <span 
+                          key={`ellipsis-${index}`} 
+                          className="flex size-8 items-end justify-center text-slate-400 text-lg font-bold tracking-widest pb-2"
+                        >
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={number}
+                          onClick={() => paginate(number)}
+                          className={`flex size-8 items-center justify-center rounded text-xs font-bold transition-colors ${
+                            currentPage === number
+                              ? "bg-blue-600 text-white shadow-sm"
+                              : "hover:bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {number}
+                        </button>
+                      )
+                    )}
                   </div>
 
                   <button
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 transition"
+                    className="hidden sm:flex items-center gap-2.5 text-sm font-bold text-slate-900 hover:text-blue-600 disabled:text-slate-300 disabled:cursor-not-allowed transition-colors"
                   >
-                    Next
+                    Next →
                   </button>
                 </div>
+
+                <p className="text-sm text-slate-500 text-center">
+                  Showing{" "}
+                  <span className="font-semibold text-slate-900">
+                    {(currentPage - 1) * itemsPerPage + 1}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-semibold text-slate-900">
+                    {Math.min(currentPage * itemsPerPage, totalPosts)}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-semibold text-slate-900">
+                    {totalPosts}
+                  </span>{" "}
+                  guides
+                </p>
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* Empty State */}
         {!loading && posts.length === 0 && (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200">
-            <h3 className="text-xl font-bold text-slate-700 mb-2">No guides published yet</h3>
-            <p className="text-slate-500 mb-6">Head over to the admin dashboard to generate your first SEO page.</p>
-            <Link to="/admin" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+          <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200 mt-10">
+            <h3 className="text-xl font-bold text-slate-700 mb-2">
+              No guides published yet
+            </h3>
+            <p className="text-slate-500 mb-6">
+              Head over to the admin dashboard to generate your first SEO page.
+            </p>
+            <Link
+              to="/admin"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition"
+            >
               Go to Admin Dashboard
             </Link>
           </div>
         )}
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-10 mt-auto text-center text-sm text-slate-500">
-        <p>© {new Date().getFullYear()} Instaweb Labs. All rights reserved.</p>
+      {/* Large Footer */}
+      <footer className="border-t border-slate-100 bg-slate-50/50 py-10 mt-auto">
+        <div className="mx-auto max-w-7xl px-6 lg:px-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-10">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2.5 mb-6">
+                <div className="flex size-8 items-center justify-center bg-blue-600 text-white rounded shadow-sm">
+                  <img
+                    src="/InstaWeb-Labs-icon.svg"
+                    className="w-4 h-4 invert brightness-0"
+                    alt="Logo"
+                  />
+                </div>
+                <span className="text-lg font-extrabold tracking-tight text-slate-900">
+                  websites.co.in
+                </span>
+              </div>
+              <p className="text-slate-500 max-w-sm text-[15px] leading-relaxed">
+                Empowering local businesses with professional, high-performance
+                web presence. Built for speed, optimized for growth.
+              </p>
+            </div>
+            <div className="flex flex-row justify-around md:grid-cols-2 gap-24 lg:gap-46">
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-6">
+                  Resources
+                </h4>
+                <nav className="flex flex-col gap-4">
+                  <a
+                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors"
+                    href="#"
+                  >
+                    Documentation
+                  </a>
+                  <a
+                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors"
+                    href="#"
+                  >
+                    Case Studies
+                  </a>
+                  <Link
+                    to="/"
+                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors"
+                  >
+                    Blog
+                  </Link>
+                </nav>
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-900 mb-6">
+                  Connect
+                </h4>
+                <nav className="flex flex-col gap-4">
+                  <a
+                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors"
+                    href="#"
+                  >
+                    Twitter
+                  </a>
+                  <a
+                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors"
+                    href="#"
+                  >
+                    LinkedIn
+                  </a>
+                  <Link
+                    to="/admin"
+                    className="text-sm text-slate-500 hover:text-blue-600 transition-colors"
+                  >
+                    Admin Portal
+                  </Link>
+                </nav>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-5 border-t border-slate-200">
+            <p className="text-xs font-medium text-slate-400">
+              © {new Date().getFullYear()} InstaWeb Labs. Built for
+              websites.co.in.
+            </p>
+            <div className="flex gap-6">
+              <a
+                className="text-xs font-medium text-slate-400 hover:text-slate-900"
+                href="#"
+              >
+                Privacy Policy
+              </a>
+              <a
+                className="text-xs font-medium text-slate-400 hover:text-slate-900"
+                href="#"
+              >
+                Terms of Service
+              </a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

@@ -8,7 +8,6 @@ export default function BlogPage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Fetching the blog data from your new GET route
     api
       .get(`/blog/${slug}`)
       .then((res) => setPost(res.data))
@@ -39,15 +38,23 @@ export default function BlogPage() {
     );
 
   return (
-    <div className="bg-[#f6f6f8] text-slate-900 font-sans antialiased min-h-screen">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur-sm shadow-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <div className="bg-[#f6f6f8] text-slate-900 font-sans antialiased min-h-screen overflow-x-hidden">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-12">
           <div className="flex items-center gap-2">
-            <img src="/InstaWeb-Labs-icon.svg" className="w-8 h-8" />
-            <span className="text-xl font-black tracking-tight">
-              InstaWeb Labs
-            </span>
+            <Link to="/" className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center bg-blue-600 text-white rounded-lg shadow-sm">
+                <img
+                  src="/InstaWeb-Labs-icon.svg"
+                  className="w-5 h-5 invert brightness-0"
+                  alt="Logo"
+                />
+              </div>
+              <span className="text-xl font-black tracking-tight">
+                InstaWeb Labs
+              </span>
+            </Link>
           </div>
           <a
             href="https://websites.co.in"
@@ -55,13 +62,12 @@ export default function BlogPage() {
             rel="noopener noreferrer"
             className="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition inline-block shadow-md"
           >
-            Get Started
+            Start Building
           </a>
         </div>
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-12">
-        {/* Breadcrumbs */}
         <nav className="mb-8 flex items-center gap-2 text-sm text-slate-500">
           <Link to="/" className="hover:text-blue-600">
             Home

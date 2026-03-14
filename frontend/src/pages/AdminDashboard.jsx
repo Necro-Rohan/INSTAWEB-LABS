@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="bg-[#f6f6f8] text-slate-900 min-h-screen flex flex-col items-center py-10">
+    <div className="bg-[#f6f6f8] text-slate-900 min-h-screen flex flex-col items-center py-10 overflow-x-hidden">
       <div className="w-full max-w-200 px-6">
         <h1 className="text-3xl font-black mb-2">SEO Page Generator</h1>
         <p className="text-slate-500 mb-8">
