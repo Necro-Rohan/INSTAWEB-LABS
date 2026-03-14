@@ -1,5 +1,5 @@
 import BlogPost from "../models/BlogPost.model.js";
-import { generateSEOContentPipeline } from "../services/aiService.js";
+import { addBlogJob } from "../jobs/queue.js"; 
 
 export const BlogGenerator = async (req, res) => {
   const { adjective, category, geography } = req.body;
@@ -8,50 +8,42 @@ export const BlogGenerator = async (req, res) => {
     return res.status(400).json({ error: "Missing required variables" });
   }
 
-  // slug to check if the post already exists
-  const checkSlug =
-    `${adjective}-website-builder-for-${category}-in-${geography}`
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "");
+  const formattedAdjective = adjective.charAt(0).toUpperCase() + adjective.slice(1).toLowerCase();
+  const formattedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+  const formattedGeography = geography.charAt(0).toUpperCase() + geography.slice(1).toLowerCase();
+  const keyword = `${formattedAdjective} Website Builder for ${formattedCategory} in ${formattedGeography}`;
+  
+  const checkSlug = keyword.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
 
   try {
+    // Check if it already exists 
     const existingPost = await BlogPost.findOne({ slug: checkSlug });
     if (existingPost) {
-      return res
-        .status(409)
-        .json({
-          error: "Post for this combination already exists.",
-          slug: checkSlug,
-        });
+      return res.status(409).json({
+        error: "Post for this combination already exists.",
+        slug: checkSlug,
+      });
     }
-    console.log(`Starting multi-model SEO pipeline for: ${checkSlug}...`);
 
-    const aiData = await generateSEOContentPipeline(
-      adjective,
-      category,
-      geography,
-    );
+    console.log(`Adding multi-model SEO pipeline job to queue for: ${checkSlug}...`);
 
-    const newPost = new BlogPost({
-      adjective,
-      category,
-      geography,
-      slug: aiData.slug || checkSlug,
-      metaTitle: aiData.metaTitle,
-      metaDescription: aiData.metaDescription,
-      h1: aiData.h1,
-      htmlContent: aiData.htmlContent,
-      status: "published",
+    // Tossing the data into the Redis Queue!
+    const job = await addBlogJob({ 
+      keyword, // Passing the full keyword to make the worker's life easier
+      adjective, 
+      category, 
+      geography 
     });
 
-    await newPost.save();
-    res
-      .status(201)
-      .json({ message: "Blog generated successfully", post: newPost });
+    // IMMEDIATELY sending a response back. No more waiting for the AI to do its thing!
+    return res.status(202).json({ 
+      message: "Blog generation started in the background!", 
+      jobId: job.id 
+    });
+
   } catch (error) {
-    console.error("Generator Error:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Generator Queue Error:", error);
+    res.status(500).json({ error: "Failed to add job to queue" });
   }
 };
 

@@ -8,7 +8,7 @@ import { dirname } from 'path';
 dotenv.config();
 
 import connectDb from './db.js';
-import aiRoute from './src/routes/aiRoutes.js';
+import aiRoute from './src/routes/blogRoutes.js';
 import frontendRoutes from './src/routes/frontendRoutes.js';
 import indexingRoutes from "./src/routes/indexingRoutes.js";
 
