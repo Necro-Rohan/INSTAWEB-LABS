@@ -39,3 +39,5 @@ nodemon-debug.log
 
 *.bak
 *.orig
+
+essentials/
