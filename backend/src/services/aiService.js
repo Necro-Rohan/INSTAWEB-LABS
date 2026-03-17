@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { InferenceClient } from "@huggingface/inference";
+// import { InferenceClient } from "@huggingface/inference";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 dotenv.config();
@@ -12,7 +12,7 @@ const githubAI = new OpenAI({
   apiKey: process.env.GITHUB_TOKEN,
 });
 
-const hfClient = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
+// const hfClient = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
 
 export async function generateSEOContentPipeline(adjective, category, geography) {
   let formattedAdjective = adjective.charAt(0).toUpperCase() + adjective.slice(1).toLowerCase();
@@ -75,7 +75,7 @@ async function generateOutline(keyword, category, geography) {
   Return ONLY the text outline.`;
 
   const response = await genAI.models.generateContent({
-    model: "gemini-2.5-flash-lite", // we will use model gemini-2.5-flash in production
+    model: "gemini-3.1-flash-lite-preview", // we will use model gemini-2.5-flash in production
     contents: prompt,
   });
   return response.text;
@@ -90,12 +90,16 @@ async function generateArticle(keyword, outline, category, geography) {
   1. **HEADING HIERARCHY & NO MAIN TITLE:** Do NOT write an overall title or headline for the blog. Our system already handles the H1. Start the HTML immediately with the heading for Section 1. Every single one of the 15 main outline sections MUST be wrapped in an <h2> tag. Any subheadings you create inside those sections MUST be wrapped in an <h3> tag.
   2. **NO CONVERSATIONAL FILLER:** You must return ONLY raw HTML code. DO NOT start with "Here is your article". DO NOT end with "This article meets all requirements". Start immediately with the first <h2> tag and end with the final HTML closing tag.
   3. **STRICTLY RAW HTML (NO MARKDOWN):** You are strictly forbidden from using markdown. DO NOT use '#' for headings or '**' for bold text. Use ONLY raw HTML tags: <h2>, <h3>, <p>, <strong>, <ul>, and <li>. 
-  4. **TONE & LINKS (MELLOWED DOWN):** Maintain an objective, consultative, and professional tone. Position Websites.co.in as the smartest, most efficient choice for local businesses, but DO NOT aggressively bash competitors. You MUST naturally insert this exact link EXACTLY 2 or 3 times (no more) TOTAL across all 15 sections combined: <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">Websites.co.in</a>. **CRITICAL: DO NOT insert this link in every section. The absolute maximum number of links in your entire 4000-word output is 3. Mention the brand ONLY in the competitor comparison and the conclusion. Do NOT link to the brand in the introduction or the middle of the article. This will look unnatural and hurt SEO.**
+  4. **TONE & LINKS (MELLOWED DOWN):** Maintain an conversational, and energetic tone. Position Websites.co.in as the smartest, most efficient choice for local businesses, but DO NOT aggressively bash competitors. You MUST naturally insert this exact link EXACTLY 2 or 3 times (no more) TOTAL across all 15 sections combined: <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">Websites.co.in</a>. **CRITICAL: DO NOT insert this link in every section. The absolute maximum number of links in your entire 4500-word output is 3. Mention the brand ONLY in the competitor comparison and the conclusion. Do NOT link to the brand in the introduction or the middle of the article. This will look unnatural and hurt SEO.**
   5. **RICH UI/UX FORMATTING (TABLES & QUOTES):** You must break up the wall of text to make it readable. 
-     - **CRITICAL: In Section 10 (Competitors), you MUST create a beautifully formatted HTML comparison table using Tailwind classes (e.g., <table class="w-full text-left border-collapse border border-slate-200 my-6">, <th class="bg-slate-100 p-4">, <td class="p-4 border-b">).**
-     - **CRITICAL: Use visually distinct pull-quotes for key statistics using: <blockquote class="border-l-4 border-blue-500 pl-4 italic text-slate-700 my-8 text-lg">Your quote here</blockquote>**
+     - **CRITICAL: In Section 10 (Competitors), you MUST create a 4-column comparison table.**
+       - Columns MUST exactly be: "Platform", "Best For", "Biggest Drawback", and "Verdict for ${category}".
+       - Write exactly 1 short sentence per cell (no one-word answers, no massive paragraphs).
+       - You MUST use this exact HTML wrapper for mobile responsiveness:
+         <div class="overflow-x-auto my-8 border border-slate-200 rounded-xl shadow-sm"><table class="w-full text-left border-collapse min-w-[600px]"><thead class="bg-slate-50 border-b border-slate-200"><tr><th class="p-4 font-semibold text-slate-900">Platform</th>...</tr></thead><tbody><tr class="border-b border-slate-100 hover:bg-slate-50"><td class="p-4 align-top">...</td>...</tr>...</tbody></table></div>
+     - **CRITICAL: Use visually distinct pull-quotes for key statistics using: <blockquote class="border-l-4 border-blue-600 bg-blue-50 p-6 italic text-slate-700 my-8 text-xl rounded-r-lg shadow-sm">Your quote here</blockquote>**
      - **CRITICAL: Wrap formulas or case studies in: <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 my-6 shadow-sm"><p class="text-slate-700 font-medium">Text</p></div>**
-  6. **EXTREME ANTI-LAZINESS RULE:** You must write at least 3 full paragraphs for each section.Each paragraph should be approximately 80-120 words. Sections 11, 12, 13, and 14 MUST be just as long and detailed as Section 1. Do not summarize or rush the end of the article.
+  6. **EXTREME ANTI-LAZINESS RULE:** You must write at least 3 full paragraphs for each section.Each paragraph should be approximately 60-100 words. Sections 11, 12, 13, and 14 MUST be just as long and detailed as Section 1. Do not summarize or rush the end of the article.
     - **EXCEPTION FOR SECTION 15 (FAQs):** Do NOT write generic paragraphs about FAQs. You MUST write exactly 12 individual Questions and detailed Answers. Format each Question in an <h3> tag and each Answer in a <p> tag. **CRITICAL: Each answer must be 80-100 words. Answers must include practical, real-world examples relevant to the business category and city.Do NOT give one-sentence answers.use of <strong>important phrases</strong> and <i>emphasis text</i>**
   7. **TOKEN INJECTION (MANDATORY):** You MUST insert the following exact text tokens on their own line within the article. Do not modify these tokens in any way. If you miss a token, the system will crash.
      - Insert ***IMAGE_1*** after the first paragraph of Section 1.
@@ -105,9 +109,9 @@ async function generateArticle(keyword, outline, category, geography) {
      - Insert ***IMAGE_5*** after the first paragraph of Section 12.
      - Insert ***CTA_LINK*** at the very end of Section 7.
      - Insert ***CTA_LINK*** at the very end of Section 15.  
-  8. **BLOG READABILITY OPTIMIZATION (MANDATORY)**:The article must feel like a professional editorial blog, not an academic essay.
+  8. **SNAPPY, HUMAN TONE:** Write like a modern tech blogger (think HubSpot or Intercom). Be punchy, conversational, and energetic. DO NOT use robotic transition sentences like "Moving on to..." or "Building upon...". Start sections with a bold claim, a short question, or a startling fact. Use real-world examples and case studies to illustrate points. Avoid repeating the same sentence structures. Use varied phrasing and formatting to keep the reader engaged. DO NOT be overly formal or technical. The tone should be consultative and approachable, like you're advising a friend who owns a local business.
     Follow these rules:
-    • Paragraphs should be 80-120 words.
+    • Paragraphs should be 60-100 words.
     • Avoid large blocks of uninterrupted text.
     • Use <ul><li> lists to summarize key ideas when explaining multiple points.
     • Lists should contain 3-6 items.
@@ -118,21 +122,20 @@ async function generateArticle(keyword, outline, category, geography) {
       - short subheading (<h3>)
       - use of <strong>important phrases</strong> or <i>emphasis text</i>
       - strictly no use of markdown formatting like bold or italics symbols. Use HTML tags only.
-    • Never write more than 5 consecutive lines without a paragraph break or formatting element.
-  9. **CONTENT FLOW**:Each section should begin with a short transition sentence connecting it with the previous topic.
-  10. **WRITING STYLE**: Write in a modern editorial blog style similar to high-quality SaaS blogs.
-    • Use clear explanations
-    • Use practical examples
-    • Use reader-friendly transitions
-    • Avoid repeating the same sentence patterns
-    • Use varied phrasing and examples
-    • Do not use a robotic or overly formal tone. Be consultative and approachable.
-    • Strictly avoid using markdown formatting. Use HTML tags for all formatting needs.
-    • Strinctly Do NOT write an overall title or headline for the blog. Our system already handles the H1. Start the HTML immediately with the heading for Section 1. Every single one of the 15 main outline sections MUST be wrapped in an <h2> tag. Any subheadings you create inside those sections MUST be wrapped in an <h3> tag.
+    • Never write more than 3 consecutive lines without a paragraph break or formatting element.
+9. **KILL THE WALL OF TEXT (CRITICAL):** Internet users scan, they don't read. **Paragraphs must be a maximum of 2 to 3 sentences.** Use frequent line breaks. Use bulleted lists (<ul><li class="mb-2">) to break up data. Bold **key phrases** to make scanning easy.  
+10. **WRITING STYLE & VOICE (THE "ANTI-AI" PROTOCOL):**
+    • Write in a snappy, modern editorial style (think HubSpot, Intercom, or Stripe).
+    • Speak directly to the reader using "you" and "your". Be consultative and authoritative.
+    • Use active voice, strong verbs, and varied sentence lengths.
+    • **NO ROBOTIC TRANSITIONS:** Do not start sections by summarizing the previous section. Start every new H2 section with a bold statement, a practical question, or a startling fact.
+    • **BANNED AI PHRASES (CRITICAL):** You are strictly forbidden from using cliché AI filler words. Do NOT use: "Furthermore," "In today's digital landscape," "Delve into," "Navigating," "In conclusion," "It's no secret that," "Testament to," or "At the end of the day."
+    • **NO MARKDOWN:** Strictly avoid using markdown formatting. Use HTML tags for all formatting needs.
 `;
 
   const response = await genAI.models.generateContent({
-    model: "gemini-2.5-flash-lite",  // we will use model gemini-2.5-flash in production
+    model: "gemini-3.1-flash-lite-preview", // we will use model gemini-2.5-flash in production
+    // othermodel:- "gemini-3.1-flash-lite-preview"
     contents: prompt,
   });
   let content =response.text;
@@ -163,9 +166,33 @@ async function generateSEOTags(keyword, outline) {
   });
 
   return JSON.parse(response.choices[0].message.content);
+
+  // const response = await genAI.models.generateContent({
+  //   model: "gemini-2.5-flash-lite", // Maybe, we will use model upper commented one in production
+  //   contents: prompt,
+  //   // This config explicitly tells Gemini to only return valid JSON
+  //   config: {
+  //     responseMimeType: "application/json",
+  //   },
+  // });
+
+  // let content = response.text;
+
+  // content = content
+  //   .replace(/```json/gi, "")
+  //   .replace(/```/g, "")
+  //   .trim();
+
+  // return JSON.parse(content);
 }
 
 async function generateImages(category, geography) {
+  // We use Pollinations AI here because it returns a tiny URL string,
+  // NOT a massive Base64 buffer that destroys my MongoDBwith its size.
+  const generateAIImageUrl = (promptText) => {
+    const seed = Math.floor(Math.random() * 100000);
+    return `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${process.env.POLLINATION_API_KEY}`;
+  };
 
   function getBusinessPrompt(category, geography) {
     const retail = ["salon", "boutique", "spa", "restaurant", "cafe", "store"];
@@ -174,22 +201,22 @@ async function generateImages(category, geography) {
     const services = ["plumber", "electrician", "carpenter", "cleaner"];
 
     if (retail.includes(category)) {
-      return `modern ${category} storefront in ${geography} India, urban street, photorealistic`;
+      return `modern ${category} storefront in ${geography}, urban street, photorealistic`;
     }
 
     if (healthcare.includes(category)) {
-      return `modern ${category} building in ${geography} India, medical facility exterior, realistic photography`;
+      return `modern ${category} building in ${geography}, medical facility exterior, realistic photography`;
     }
 
     if (fitness.includes(category)) {
-      return `modern ${category} interior in ${geography} India, workout equipment, professional studio`;
+      return `modern ${category} interior in ${geography}, workout equipment, professional studio`;
     }
 
     if (services.includes(category)) {
-      return `professional ${category} working at client location in ${geography} India, realistic photography`;
+      return `professional ${category} working at client location in ${geography}, realistic photography`;
     }
 
-    return `modern ${category} business in ${geography} India, realistic photography`;
+    return `modern ${category} business in ${geography}, realistic photography`;
   }
 
   // The 5 specific image intents
@@ -207,24 +234,11 @@ async function generateImages(category, geography) {
     { type: "unsplash", prompt: `business analytics dashboard` }, // Real computer/growth photo
   ];
 
-  const generateFluxImage = async (promptText) => {
-    const imageBlob = await hfClient.textToImage({
-      provider: "nscale",
-      model: "black-forest-labs/FLUX.1-schnell",
-      inputs: promptText,
-      parameters: { num_inference_steps: 4 },
-    });
-    const arrayBuffer = await imageBlob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    return `data:image/jpeg;base64,${buffer.toString("base64")}`;
-  };
-
-  // for maximum speed
   const imagePromises = imageConfigs.map(async (config, index) => {
     try {
       if (config.type === "flux") {
-        console.log(`Generating AI Image ${index + 1}/5 (FLUX)...`);
-        return await generateFluxImage(config.prompt);
+        console.log(`Generating AI Image URL ${index + 1}/5...`);
+        return generateAIImageUrl(config.prompt);
       }
 
       if (config.type === "unsplash") {
@@ -242,30 +256,30 @@ async function generateImages(category, geography) {
 
           const data = await response.json();
           if (data.results && data.results.length > 0) {
-            // Picking a random image from the Top 10 most relevant results
-            const topPhotos = data.results;
-            const randomTopPhoto = topPhotos[Math.floor(Math.random() * topPhotos.length)];
+            const randomTopPhoto =
+              data.results[Math.floor(Math.random() * data.results.length)];
             return randomTopPhoto.urls.regular;
           } else {
-             throw new Error("Unsplash returned 0 results for this query.");
+            throw new Error("Unsplash returned 0 results.");
           }
         } catch (unsplashError) {
-          // CASCADING FALLBACK 
           console.warn(
-            `Unsplash failed for Image ${index + 1} (${unsplashError.message}). Falling back to FLUX...`,
+            `Unsplash failed for Image ${index + 1} (${unsplashError.message}). Falling back to AI...`,
           );
-
-          const fallbackPrompt = `Highly realistic, cinematic photography of ${config.prompt}, 8k resolution, photorealistic`;
-          return await generateFluxImage(fallbackPrompt);
+          return generateAIImageUrl(
+            `Highly realistic, cinematic photography of ${config.prompt}, 8k resolution, photorealistic`,
+          );
         }
       }
     } catch (criticalError) {
-      console.error(`CRITICAL FAILURE for Image ${index + 1}:`, criticalError.message);
-      // Ultimate Failsafe: If BOTH Unsplash and Hugging Face are completely down, 
+      console.error(
+        `CRITICAL FAILURE for Image ${index + 1}:`,
+        criticalError.message,
+      );
       return `https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80`;
     }
   });
-
+  
   // Wait for all images to finish at the exact same time
   const imageUrls = await Promise.all(imagePromises);
   return imageUrls;
@@ -306,6 +320,7 @@ function assembleFinalHtml(html, images, category, geography) {
 
   // Replacing all instances of the CTA token with our perfect HTML block
   finalHtml = finalHtml.split('***CTA_LINK***').join(ctaElement);
+  // finalHtml = finalHtml.replace(/\*\*\*CTA_LINK\*\*\*/g, ctaElement);
 
   return finalHtml;
 }
