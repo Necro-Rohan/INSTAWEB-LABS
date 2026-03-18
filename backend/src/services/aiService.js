@@ -483,15 +483,21 @@ async function generateImages(category, geography) {
   }
 
   const imageConfigs = [
-    { type: "flux", prompt: getBusinessPrompt(category, geography) },
+    {
+      type: "flux",
+      prompt: getBusinessPrompt(category, geography),
+      unsplashFallback: `modern ${category} exterior`,
+    },
     {
       type: "flux",
       prompt: `modern SaaS website builder dashboard showing analytics for ${category} business, clean UI interface, charts and graphs`,
+      unsplashFallback: `business analytics dashboard laptop`,
     },
     { type: "unsplash", prompt: `${category} service professional` },
     {
       type: "flux",
       prompt: `SEO analytics dashboard showing growth for ${category} business, charts increasing, digital marketing concept`,
+      unsplashFallback: `business growth charts and graphs`,
     },
     {
       type: "unsplash",
@@ -511,7 +517,7 @@ async function generateImages(category, geography) {
           `AI limit reached. Falling back to dynamic Unsplash for Image ${index + 1}...`,
         );
         const unsplashFallback = await fetchUnsplashImage(
-          `${category} business in ${geography}`,
+          config.unsplashFallback || config.prompt,
         );
         if (unsplashFallback) return unsplashFallback;
 
