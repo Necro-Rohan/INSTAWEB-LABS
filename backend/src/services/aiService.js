@@ -212,56 +212,256 @@ async function generateSEOTags(keyword, outline) {
   // return JSON.parse(content);
 }
 
+// async function generateImages(category, geography) {
+//   // We use Pollinations AI here because it returns a tiny URL string,
+//   // NOT a massive Base64 buffer that destroys my MongoDBwith its size.
+//   // const generateAIImageUrl = (promptText) => {
+//   //   const seed = Math.floor(Math.random() * 100000);
+//   //   // return `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${process.env.POLLINATION_API_KEY}`;
+//   //   return `/api/proxy-ai-image?prompt=${encodeURIComponent(promptText)}&seed=${seed}`;
+//   // };
+//   const pollinationKey = process.env.POLLINATION_API_KEY;
+//   if (!pollinationKey) {
+//     console.error("Pollination API key not configured");
+//     return Array(5).fill("https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80");
+//   }
+
+//   const generateAndUploadAIImage = async (promptText) => {
+//     const seed = Math.floor(Math.random() * 100000);
+//     const pollinationsUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${pollinationKey}`;
+
+//     try {
+      
+//       const response = await fetch(pollinationsUrl, {
+//         headers: {
+//           "User-Agent": "InstaWeb-Labs-Proxy/1.0",
+//           Accept: "image/*",
+//         },
+//       });
+
+//       if (!response.ok) {
+//         const errorDetails = await response.text(); //error details from Pollinations
+//         console.error(
+//           `Pollinations rejected request. Status: ${response.status}. Details: ${errorDetails}`,
+//         );
+//         return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"; // Fallback image
+//       }
+
+//       //image to Buffer
+//       const arrayBuffer = await response.arrayBuffer();
+//       const buffer = Buffer.from(arrayBuffer);
+
+//       // Cloudinary upload
+//       const cloudinaryUrl = await uploadBufferToCloudinary(buffer);
+//       console.log(
+//         `Successfully uploaded AI image to Cloudinary: ${cloudinaryUrl}`,
+//       );
+
+//       return cloudinaryUrl;
+//     } catch (error) {
+//       console.error("Failed to generate/upload AI image:", error);
+//       // Fallback image
+//       return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80";
+//     }
+//   };
+
+//   function getBusinessPrompt(category, geography) {
+//     const retail = ["salon", "boutique", "spa", "restaurant", "cafe", "store"];
+//     const healthcare = ["clinic", "hospital", "dental clinic"];
+//     const fitness = ["gym", "fitness center", "yoga studio"];
+//     const services = ["plumber", "electrician", "carpenter", "cleaner"];
+
+//     if (retail.includes(category)) {
+//       return `modern ${category} storefront in ${geography}, urban street, photorealistic`;
+//     }
+
+//     if (healthcare.includes(category)) {
+//       return `modern ${category} building in ${geography}, medical facility exterior, realistic photography`;
+//     }
+
+//     if (fitness.includes(category)) {
+//       return `modern ${category} interior in ${geography}, workout equipment, professional studio`;
+//     }
+
+//     if (services.includes(category)) {
+//       return `professional ${category} working at client location in ${geography}, realistic photography`;
+//     }
+
+//     return `modern ${category} business in ${geography}, realistic photography`;
+//   }
+
+//   // The 5 specific image intents
+//   const imageConfigs = [
+//     { type: "flux", prompt: getBusinessPrompt(category, geography) }, // Real city photo
+//     {
+//       type: "flux",
+//       prompt: `modern SaaS website builder dashboard showing analytics for ${category} business, clean UI interface, charts and graphs`,
+//     }, // AI UI Dashboard
+//     { type: "unsplash", prompt: `${category} service professional` }, // Real person working
+//     {
+//       type: "flux",
+//       prompt: `SEO analytics dashboard showing growth for ${category} business, charts increasing, digital marketing concept`,
+//     }, // AI Abstract Graphic
+//     { type: "unsplash", prompt: `${category} business owner working on laptop` }, // Real computer/growth photo
+//   ];
+
+//   const imagePromises = imageConfigs.map(async (config, index) => {
+//     try {
+//       if (config.type === "flux") {
+//         console.log(`Generating AI Image URL ${index + 1}/5...`);
+//         return await generateAndUploadAIImage(config.prompt);
+//       }
+
+//       if (config.type === "unsplash") {
+//         console.log(`Fetching Real Image ${index + 1}/5 (Unsplash)...`);
+//         try {
+//           const unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(config.prompt)}&orientation=landscape&per_page=10&content_filter=high&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
+//           const response = await fetch(unsplashUrl);
+
+//           if (!response.ok) {
+//             const errorText = await response.text();
+//             throw new Error(
+//               `Unsplash Failed: ${response.status} - ${errorText}`,
+//             );
+//           }
+
+//           const data = await response.json();
+//           if (data.results && data.results.length > 0) {
+//             const randomTopPhoto = data.results[Math.floor(Math.random() * data.results.length)];
+//             await fetch(
+//               `${randomTopPhoto.links.download_location}&client_id=${process.env.UNSPLASH_ACCESS_KEY}`
+//             );
+//             return {
+//               url: randomTopPhoto.urls.regular,
+//               photographerName: randomTopPhoto.user.name,
+//               photographerUrl: randomTopPhoto.user.links.html,
+//               isUnsplash: true,
+//             };
+//           } else {
+//             throw new Error("Unsplash returned 0 results.");
+//           }
+//         } catch (unsplashError) {
+//           console.warn(
+//             `Unsplash failed for Image ${index + 1} (${unsplashError.message}). Falling back to AI...`,
+//           );
+//           return generateAndUploadAIImage(
+//             `Highly realistic, cinematic photography of ${config.prompt}, 8k resolution, photorealistic`,
+//           );
+//         }
+//       }
+//     } catch (criticalError) {
+//       console.error(
+//         `CRITICAL FAILURE for Image ${index + 1}:`,
+//         criticalError.message,
+//       );
+//       return `https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80`;
+//     }
+//   });
+  
+//   // Wait for all images to finish at the exact same time
+//   const imageUrls = await Promise.all(imagePromises);
+//   return imageUrls;
+// }
+
 async function generateImages(category, geography) {
-  // We use Pollinations AI here because it returns a tiny URL string,
-  // NOT a massive Base64 buffer that destroys my MongoDBwith its size.
-  // const generateAIImageUrl = (promptText) => {
-  //   const seed = Math.floor(Math.random() * 100000);
-  //   // return `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${process.env.POLLINATION_API_KEY}`;
-  //   return `/api/proxy-ai-image?prompt=${encodeURIComponent(promptText)}&seed=${seed}`;
-  // };
+  // THE DOOMSDAY SHIELD 
+  const getEmergencyImage = async (index) => {
+    const dynamicFallbacks = [
+      `${category} website on laptop`,
+      `modern ${category} business`,
+      `${category} professional helping customer`,
+      `business growth charts and graphs`, 
+      `business analytics dashboard laptop screen`,
+    ];
+
+    const staticFallbacks = [
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
+      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
+      "https://images.unsplash.com/photo-1635405074683-96d6921a2a68?w=800&q=80&auto=format&fit=crop",
+    ];
+
+    console.log(`Activating Smart Shield for Image ${index + 1}...`);
+
+    // Dynamic prompt first!
+    const targetPrompt = dynamicFallbacks[index] || `${category} business`;
+    const dynamicImg = await fetchUnsplashImage(targetPrompt);
+
+    if (dynamicImg) return dynamicImg;
+
+    // return the guaranteed static URL
+    console.warn(
+      `Smart Shield dynamic fetch failed. Using hardcoded stock URL.`,
+    );
+    return staticFallbacks[index % staticFallbacks.length];
+  };
+
+  // REUSABLE UNSPLASH MATCHER FOR BOTH PRIMARY AND SMART SHIELD
+  const fetchUnsplashImage = async (searchQuery) => {
+    try {
+      // We ask for 15 results so we can pick a random one!
+      const unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&orientation=landscape&per_page=15&content_filter=high&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
+      const response = await fetch(unsplashUrl);
+
+      if (!response.ok) throw new Error(`Unsplash Failed: ${response.status}`);
+
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        // Pick a random photo from the returned array to ensure variety
+        const randomPhoto =
+          data.results[Math.floor(Math.random() * data.results.length)];
+        await fetch(
+          `${randomPhoto.links.download_location}&client_id=${process.env.UNSPLASH_ACCESS_KEY}`,
+        );
+
+        return {
+          url: randomPhoto.urls.regular,
+          photographerName: randomPhoto.user.name,
+          photographerUrl: randomPhoto.user.links.html,
+          isUnsplash: true,
+        };
+      }
+      return null; // null if Unsplash finds exactly 0 images
+    } catch (error) {
+      console.warn(
+        `Unsplash fetch failed for "${searchQuery}":`,
+        error.message,
+      );
+      return null; // null so the main loop knows it failed
+    }
+  };
+
+  // THE AI GENERATOR 
   const pollinationKey = process.env.POLLINATION_API_KEY;
-  if (!pollinationKey) {
-    console.error("Pollination API key not configured");
-    return Array(5).fill("https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80");
-  }
 
   const generateAndUploadAIImage = async (promptText) => {
+    if (!pollinationKey) return null; // Immediately fail if no key
+
     const seed = Math.floor(Math.random() * 100000);
     const pollinationsUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${pollinationKey}`;
 
     try {
-      
       const response = await fetch(pollinationsUrl, {
-        headers: {
-          "User-Agent": "InstaWeb-Labs-Proxy/1.0",
-          Accept: "image/*",
-        },
+        headers: { "User-Agent": "InstaWeb-Labs-Proxy/1.0", Accept: "image/*" },
       });
 
       if (!response.ok) {
-        const errorDetails = await response.text(); //error details from Pollinations
         console.error(
-          `Pollinations rejected request. Status: ${response.status}. Details: ${errorDetails}`,
+          `Pollinations rejected request. Status: ${response.status}`,
         );
-        return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"; // Fallback image
+        return null; // Return null so the fallback system kicks in!
       }
 
-      //image to Buffer
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-
-      // Cloudinary upload
       const cloudinaryUrl = await uploadBufferToCloudinary(buffer);
-      console.log(
-        `Successfully uploaded AI image to Cloudinary: ${cloudinaryUrl}`,
-      );
+      console.log(`AI image uploaded to Cloudinary: ${cloudinaryUrl}`);
 
       return cloudinaryUrl;
     } catch (error) {
-      console.error("Failed to generate/upload AI image:", error);
-      // Fallback image
-      return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80";
+      console.error("AI Generation Error:", error.message);
+      return null;
     }
   };
 
@@ -271,94 +471,80 @@ async function generateImages(category, geography) {
     const fitness = ["gym", "fitness center", "yoga studio"];
     const services = ["plumber", "electrician", "carpenter", "cleaner"];
 
-    if (retail.includes(category)) {
+    if (retail.includes(category))
       return `modern ${category} storefront in ${geography}, urban street, photorealistic`;
-    }
-
-    if (healthcare.includes(category)) {
+    if (healthcare.includes(category))
       return `modern ${category} building in ${geography}, medical facility exterior, realistic photography`;
-    }
-
-    if (fitness.includes(category)) {
+    if (fitness.includes(category))
       return `modern ${category} interior in ${geography}, workout equipment, professional studio`;
-    }
-
-    if (services.includes(category)) {
+    if (services.includes(category))
       return `professional ${category} working at client location in ${geography}, realistic photography`;
-    }
-
     return `modern ${category} business in ${geography}, realistic photography`;
   }
 
-  // The 5 specific image intents
   const imageConfigs = [
-    { type: "flux", prompt: getBusinessPrompt(category, geography) }, // Real city photo
+    { type: "flux", prompt: getBusinessPrompt(category, geography) },
     {
       type: "flux",
       prompt: `modern SaaS website builder dashboard showing analytics for ${category} business, clean UI interface, charts and graphs`,
-    }, // AI UI Dashboard
-    { type: "unsplash", prompt: `${category} service professional` }, // Real person working
+    },
+    { type: "unsplash", prompt: `${category} service professional` },
     {
       type: "flux",
       prompt: `SEO analytics dashboard showing growth for ${category} business, charts increasing, digital marketing concept`,
-    }, // AI Abstract Graphic
-    { type: "unsplash", prompt: `${category} business owner working on laptop` }, // Real computer/growth photo
+    },
+    {
+      type: "unsplash",
+      prompt: `${category} business owner working on laptop`,
+    },
   ];
 
+  // THE MASTER EXECUTION LOOP
   const imagePromises = imageConfigs.map(async (config, index) => {
     try {
       if (config.type === "flux") {
-        console.log(`Generating AI Image URL ${index + 1}/5...`);
-        return await generateAndUploadAIImage(config.prompt);
+        console.log(`Generating AI Image ${index + 1}/5...`);
+        const aiUrl = await generateAndUploadAIImage(config.prompt);
+        if (aiUrl) return aiUrl; // Success!
+
+        console.log(
+          `AI limit reached. Falling back to dynamic Unsplash for Image ${index + 1}...`,
+        );
+        const unsplashFallback = await fetchUnsplashImage(
+          `${category} business in ${geography}`,
+        );
+        if (unsplashFallback) return unsplashFallback;
+
+        // Call the Smart Shield 
+        return await getEmergencyImage(index);
       }
 
       if (config.type === "unsplash") {
         console.log(`Fetching Real Image ${index + 1}/5 (Unsplash)...`);
-        try {
-          const unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(config.prompt)}&orientation=landscape&per_page=10&content_filter=high&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
-          const response = await fetch(unsplashUrl);
+        const unsplashImg = await fetchUnsplashImage(config.prompt);
+        if (unsplashImg) return unsplashImg; // Success!
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(
-              `Unsplash Failed: ${response.status} - ${errorText}`,
-            );
-          }
+        console.log(
+          `Unsplash found no images. Falling back to AI for Image ${index + 1}...`,
+        );
+        const aiFallbackUrl = await generateAndUploadAIImage(
+          `Highly realistic cinematic photography of ${config.prompt}, 8k resolution`,
+        );
+        if (aiFallbackUrl) return aiFallbackUrl;
 
-          const data = await response.json();
-          if (data.results && data.results.length > 0) {
-            const randomTopPhoto = data.results[Math.floor(Math.random() * data.results.length)];
-            await fetch(
-              `${randomTopPhoto.links.download_location}&client_id=${process.env.UNSPLASH_ACCESS_KEY}`
-            );
-            return {
-              url: randomTopPhoto.urls.regular,
-              photographerName: randomTopPhoto.user.name,
-              photographerUrl: randomTopPhoto.user.links.html,
-              isUnsplash: true,
-            };
-          } else {
-            throw new Error("Unsplash returned 0 results.");
-          }
-        } catch (unsplashError) {
-          console.warn(
-            `Unsplash failed for Image ${index + 1} (${unsplashError.message}). Falling back to AI...`,
-          );
-          return generateAIImageUrl(
-            `Highly realistic, cinematic photography of ${config.prompt}, 8k resolution, photorealistic`,
-          );
-        }
+        // Call the Smart Shield 
+        return await getEmergencyImage(index);
       }
     } catch (criticalError) {
       console.error(
         `CRITICAL FAILURE for Image ${index + 1}:`,
         criticalError.message,
       );
-      return `https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80`;
+      // Call the Smart Shield 
+      return await getEmergencyImage(index);
     }
   });
-  
-  // Wait for all images to finish at the exact same time
+
   const imageUrls = await Promise.all(imagePromises);
   return imageUrls;
 }
@@ -368,10 +554,10 @@ function assembleFinalHtml(html, images, category, geography) {
   
   // INJECTING THE IMAGES AND ALT TAGS
   const seoAltTags = [
-    `Modern ${category} exterior in ${geography} attracting new members`,
+    `Modern ${category} website in ${geography} showcasing local business online presence`,
     `Websites.co.in website builder dashboard for ${category} business management`,
-    `${category} owner in ${geography} managing business website using Android app`,
-    `Local ${category} service business website example built using Websites.co.in`,
+    `${category} owner in ${geography} having a great customer experience on their website, leading to increased bookings and revenue`,
+    `Local ${category} service business website analytics showing growth in traffic and customer engagement from SEO optimization`,
     `Advanced local SEO optimization and Google Analytics integration for ${category}s`
   ];
 
