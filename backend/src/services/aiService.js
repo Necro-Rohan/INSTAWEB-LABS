@@ -1,8 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 // import { InferenceClient } from "@huggingface/inference";
 import OpenAI from "openai";
+import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+
 dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -51,6 +59,24 @@ export async function generateSEOContentPipeline(adjective, category, geography)
 }
 
 
+const uploadBufferToCloudinary = async (buffer, folderName = "pseo_blogs") => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: folderName,
+        format: "webp", // Force webp to save massive amounts of storage!
+        quality: "auto", // Cloudinary AI optimizes the size without losing quality
+      },
+      (error, result) => {
+        if (result) resolve(result.secure_url);
+        else reject(error);
+      },
+    );
+    uploadStream.end(buffer);
+  });
+};
+
+
 async function generateOutline(keyword, category, geography) {
   const prompt = `You are an Enterprise SEO Architect. Create a massive 15-section SEO blog outline for the keyword: "${keyword}". 
   Target Audience: ${category} businesses operating in ${geography}.
@@ -94,7 +120,7 @@ async function generateArticle(keyword, outline, category, geography) {
   5. **RICH UI/UX FORMATTING (TABLES & QUOTES):** You must break up the wall of text to make it readable. 
      - **CRITICAL: In Section 10 (Competitors), you MUST create a 4-column comparison table.**
        - Columns MUST exactly be: "Platform", "Best For", "Biggest Drawback", and "Verdict for ${category}".
-       - Write exactly 1 short sentence per cell (no one-word answers, no massive paragraphs).
+       - Write exactly 1 sentence per cell (minimum 10 words,no one-word answers, no massive paragraphs).
        - You MUST use this exact HTML wrapper for mobile responsiveness:
          <div class="overflow-x-auto my-8 border border-slate-200 rounded-xl shadow-sm"><table class="w-full text-left border-collapse min-w-[600px]"><thead class="bg-slate-50 border-b border-slate-200"><tr><th class="p-4 font-semibold text-slate-900">Platform</th>...</tr></thead><tbody><tr class="border-b border-slate-100 hover:bg-slate-50"><td class="p-4 align-top">...</td>...</tr>...</tbody></table></div>
      - **CRITICAL: Use visually distinct pull-quotes for key statistics using: <blockquote class="border-l-4 border-blue-600 bg-blue-50 p-6 italic text-slate-700 my-8 text-xl rounded-r-lg shadow-sm">Your quote here</blockquote>**
@@ -189,9 +215,54 @@ async function generateSEOTags(keyword, outline) {
 async function generateImages(category, geography) {
   // We use Pollinations AI here because it returns a tiny URL string,
   // NOT a massive Base64 buffer that destroys my MongoDBwith its size.
-  const generateAIImageUrl = (promptText) => {
+  // const generateAIImageUrl = (promptText) => {
+  //   const seed = Math.floor(Math.random() * 100000);
+  //   // return `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${process.env.POLLINATION_API_KEY}`;
+  //   return `/api/proxy-ai-image?prompt=${encodeURIComponent(promptText)}&seed=${seed}`;
+  // };
+  const pollinationKey = process.env.POLLINATION_API_KEY;
+  if (!pollinationKey) {
+    console.error("Pollination API key not configured");
+    return Array(5).fill("https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80");
+  }
+
+  const generateAndUploadAIImage = async (promptText) => {
     const seed = Math.floor(Math.random() * 100000);
-    return `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${process.env.POLLINATION_API_KEY}`;
+    const pollinationsUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${pollinationKey}`;
+
+    try {
+      
+      const response = await fetch(pollinationsUrl, {
+        headers: {
+          "User-Agent": "InstaWeb-Labs-Proxy/1.0",
+          Accept: "image/*",
+        },
+      });
+
+      if (!response.ok) {
+        const errorDetails = await response.text(); //error details from Pollinations
+        console.error(
+          `Pollinations rejected request. Status: ${response.status}. Details: ${errorDetails}`,
+        );
+        return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"; // Fallback image
+      }
+
+      //image to Buffer
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Cloudinary upload
+      const cloudinaryUrl = await uploadBufferToCloudinary(buffer);
+      console.log(
+        `Successfully uploaded AI image to Cloudinary: ${cloudinaryUrl}`,
+      );
+
+      return cloudinaryUrl;
+    } catch (error) {
+      console.error("Failed to generate/upload AI image:", error);
+      // Fallback image
+      return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80";
+    }
   };
 
   function getBusinessPrompt(category, geography) {
@@ -231,14 +302,14 @@ async function generateImages(category, geography) {
       type: "flux",
       prompt: `SEO analytics dashboard showing growth for ${category} business, charts increasing, digital marketing concept`,
     }, // AI Abstract Graphic
-    { type: "unsplash", prompt: `business analytics dashboard` }, // Real computer/growth photo
+    { type: "unsplash", prompt: `${category} business owner working on laptop` }, // Real computer/growth photo
   ];
 
   const imagePromises = imageConfigs.map(async (config, index) => {
     try {
       if (config.type === "flux") {
         console.log(`Generating AI Image URL ${index + 1}/5...`);
-        return generateAIImageUrl(config.prompt);
+        return await generateAndUploadAIImage(config.prompt);
       }
 
       if (config.type === "unsplash") {
@@ -256,9 +327,16 @@ async function generateImages(category, geography) {
 
           const data = await response.json();
           if (data.results && data.results.length > 0) {
-            const randomTopPhoto =
-              data.results[Math.floor(Math.random() * data.results.length)];
-            return randomTopPhoto.urls.regular;
+            const randomTopPhoto = data.results[Math.floor(Math.random() * data.results.length)];
+            await fetch(
+              `${randomTopPhoto.links.download_location}&client_id=${process.env.UNSPLASH_ACCESS_KEY}`
+            );
+            return {
+              url: randomTopPhoto.urls.regular,
+              photographerName: randomTopPhoto.user.name,
+              photographerUrl: randomTopPhoto.user.links.html,
+              isUnsplash: true,
+            };
           } else {
             throw new Error("Unsplash returned 0 results.");
           }
@@ -292,16 +370,27 @@ function assembleFinalHtml(html, images, category, geography) {
   const seoAltTags = [
     `Modern ${category} exterior in ${geography} attracting new members`,
     `Websites.co.in website builder dashboard for ${category} business management`,
-    `${category} owner in ${geography} managing business website using Websites.co.in Android app`,
+    `${category} owner in ${geography} managing business website using Android app`,
     `Local ${category} service business website example built using Websites.co.in`,
     `Advanced local SEO optimization and Google Analytics integration for ${category}s`
   ];
 
-  images.forEach((imgUrl, index) => {
+  images.forEach((imgData, index) => {
+    const imgUrl = typeof imgData === "object" ? imgData.url : imgData;
+    const isUnsplash = typeof imgData === "object" && imgData.isUnsplash;
+
+    const attributionHtml = isUnsplash
+      ? `<figcaption class="text-center text-sm font-medium text-slate-500 mt-4">
+          ${seoAltTags[index]} 
+          <span class="block text-xs mt-1.5 opacity-80">
+            Photo by <a href="${imgData.photographerUrl}?utm_source=InstaWeb_Labs&utm_medium=referral" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: medium; text-decoration: underline;">${imgData.photographerName}</a> on <a href="https://unsplash.com/?utm_source=InstaWeb_Labs&utm_medium=referral" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: medium; text-decoration: underline;">Unsplash</a>
+          </span>
+        </figcaption>`
+      : `<figcaption class="text-center text-sm font-medium text-slate-500 mt-4">${seoAltTags[index]}</figcaption>`;
     const imgElement = `
       <figure class="my-12">
         <img src="${imgUrl}" alt="${seoAltTags[index]}" class="w-full h-auto rounded-2xl shadow-xl object-cover border border-slate-200" loading="lazy" />
-        <figcaption class="text-center text-sm font-medium text-slate-500 mt-4">${seoAltTags[index]}</figcaption>
+        ${attributionHtml}
       </figure>
     `;
     finalHtml = finalHtml.replace(`***IMAGE_${index + 1}***`, imgElement);
@@ -309,18 +398,20 @@ function assembleFinalHtml(html, images, category, geography) {
 
 // THE EXACT HYPERLINKS (Guarantees the URL is present for the SEO audit)
   const ctaElement = `
-    <div class="text-center my-12 bg-blue-50 p-8 rounded-2xl border border-blue-100">
+    <div class="text-center px-2 py-1 my-12 bg-blue-50 p-8 rounded-2xl border border-blue-100">
       <h3 class="text-2xl font-bold text-slate-900 mb-4">Ready to grow your ${category} in ${geography}?</h3>
       <p class="text-slate-600 mb-6">Avoid expensive website builders. Get a free domain, hosting, and SEO tools included in one platform.</p>
-      <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:bg-blue-700 transition block sm:inline-block">
+      <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:bg-blue-700 transition block sm:inline-block">
         Create your website instantly with Websites.co.in
       </a>
     </div>
   `;
 
   // Replacing all instances of the CTA token with our perfect HTML block
-  finalHtml = finalHtml.split('***CTA_LINK***').join(ctaElement);
-  // finalHtml = finalHtml.replace(/\*\*\*CTA_LINK\*\*\*/g, ctaElement);
+
+  // finalHtml = finalHtml.split('***CTA_LINK***').join(ctaElement);
+  finalHtml = finalHtml.replace(/\*\*\*CTA[_ ]LINK\*\*\*/gi, ctaElement);
+
 
   return finalHtml;
 }

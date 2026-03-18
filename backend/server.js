@@ -4,7 +4,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import "./src/jobs/worker.js";
+// import "./src/jobs/worker.js";
 
 dotenv.config();
 

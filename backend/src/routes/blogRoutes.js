@@ -5,6 +5,7 @@ import {verifyAdmin} from "../middlewares/adminVerification.js"
 const router = express.Router()
 
 router.post("/generate", verifyAdmin, BlogGenerator);
+// router.get("/proxy-ai-image", generateAiImageUrl);
 
 router.get("/blog/:slug", getBlogPost);
 

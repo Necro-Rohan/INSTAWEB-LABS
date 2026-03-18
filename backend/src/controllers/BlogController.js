@@ -1,6 +1,7 @@
 import BlogPost from "../models/BlogPost.model.js";
 import { addBlogJob } from "../jobs/queue.js"; 
 
+
 export const BlogGenerator = async (req, res) => {
   const { adjective, category, geography } = req.body;
 
@@ -89,3 +90,41 @@ export const getAllBlogPosts = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// export const generateAiImageUrl = async (req, res) => {
+//   const pollinationKey = process.env.POLLINATION_API_KEY;
+//   if (!pollinationKey) {
+//     return res.status(500).json({ error: "Pollination API key not configured" });
+//   }
+//   const { prompt, seed } = req.query;
+//   if (!prompt) return res.status(400).send("Prompt is required");
+//   const pollinationsUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(prompt)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${pollinationKey}`;
+
+//   try {
+//     const imageResponse = await fetch(pollinationsUrl, {
+//       headers: {
+//         "User-Agent": "InstaWeb-Labs-Proxy/1.0",
+//         Accept: "image/*",
+//       },
+//     });
+    
+//     if (!imageResponse.ok) {
+//       const errorDetails = await imageResponse.text(); // Get the exact reason from Pollinations
+//       throw new Error(
+//         `Pollinations rejected request. Status: ${imageResponse.status}. Details: ${errorDetails}`,
+//       );
+//     }
+//     // Convert the image to a buffer
+//     const arrayBuffer = await imageResponse.arrayBuffer();
+//     const buffer = Buffer.from(arrayBuffer);
+
+//     // Tell the browser "Hey, this is an image, not text!"
+//     res.setHeader('Content-Type', 'image/jpeg');
+    
+//     // Sending the image buffer directly to the frontend
+//     res.send(buffer);
+//   } catch (error) {
+//     console.error("Image Proxy Error:", error);
+//     res.status(500).send("Failed to load image");
+//   }
+// };
