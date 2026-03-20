@@ -68,12 +68,6 @@ export default function AdminDashboard() {
             placeholder="Enter key..."
             className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded text-sm mb-2 focus:border-primary focus:ring-0"
           />
-          <button
-            onClick={() => setSecretKey("admin_demo_2026")}
-            className="w-full text-left text-[10px] text-primary hover:underline font-bold uppercase tracking-wider"
-          >
-            Autofill Key
-          </button>
         </div>
       </aside>
 
