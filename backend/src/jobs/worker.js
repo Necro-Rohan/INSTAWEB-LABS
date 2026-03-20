@@ -20,6 +20,7 @@ const worker = new Worker(
   "blog-generation-queue",
   async (job) => {
     const { keyword, category, geography, adjective } = job.data;
+    const slug = job.id;
     console.log(`Processing Job ${job.id} for: ${keyword}`);
 
     try {
@@ -38,28 +39,33 @@ const worker = new Worker(
         : "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80";
 
       // Save to MongoDB using the AI-generated SEO Data
-      const newBlog = new BlogPost({
-        adjective,
-        category,
-        geography,
-        slug: generatedData.slug,
-        metaTitle: generatedData.metaTitle,
-        metaDescription: generatedData.metaDescription,
-        h1: generatedData.h1,
-        htmlContent: generatedData.htmlContent,
-        coverImage: coverImage,
-        status: "published",
-      });
+      await BlogPost.findOneAndUpdate(
+        { slug: slug }, // Find the placeholder we created in the controller
+        {
+          $set: {
+            metaTitle: generatedData.metaTitle,
+            metaDescription: generatedData.metaDescription,
+            h1: generatedData.h1,
+            htmlContent: generatedData.htmlContent,
+            coverImage: coverImage,
+            status: "published", // Turn the yellow badge green!
+          },
+        },
+        { new: true },
+      );
 
-      await newBlog.save();
-      console.log(`Job ${job.id} successfully completed and saved to DB!`);
+      // await newBlog.save();
+      console.log(`Job ${job.id} successfully completed and updated in DB!`);
 
-      return { success: true, slug: newBlog.slug };
+      return { success: true, slug: slug };
     } catch (error) {
       console.error(`Job ${job.id} failed:`, error.message);
 
-      await BlogPost.findOneAndUpdate({ slug }, { status: "failed" });
-      
+      await BlogPost.findOneAndUpdate(
+        { slug: job.id },
+        { $set: { status: "failed" } },
+      );
+
       throw error; // This triggers the BullMQ retry logic
     }
   },
@@ -68,7 +74,7 @@ const worker = new Worker(
     concurrency: 1, // Process up to 1 blog simultaneously!
     limiter: {
       max: 10, // Maximum number of jobs processed
-      duration: 3600000, // Per duration in milliseconds (60,000ms = 1 minute)
+      duration: 60000, // Per duration in milliseconds (60,000ms = 1 minute)
     },
   },
 );

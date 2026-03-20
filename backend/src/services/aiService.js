@@ -191,7 +191,15 @@ async function generateSEOTags(keyword, outline) {
     response_format: { type: "json_object" }
   });
 
-  return JSON.parse(response.choices[0].message.content);
+  // return JSON.parse(response.choices[0].message.content);
+  let content = response.choices[0].message.content;
+
+  content = content
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  return JSON.parse(content);
 
   // const response = await genAI.models.generateContent({
   //   model: "gemini-2.5-flash-lite", // Maybe, we will use model upper commented one in production
