@@ -73,8 +73,8 @@ const worker = new Worker(
     connection: redisConnection,
     concurrency: 1, // Process up to 1 blog simultaneously!
     limiter: {
-      max: 10, // Maximum number of jobs processed
-      duration: 60000, // Per duration in milliseconds (60,000ms = 1 minute)
+      max: 5, // Maximum number of jobs processed
+      duration: 3600000, // Per duration in milliseconds (60,000ms = 1 minute)
     },
   },
 );
