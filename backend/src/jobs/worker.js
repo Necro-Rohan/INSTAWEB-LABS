@@ -9,9 +9,8 @@ dotenv.config();
 
 connectDb();
 
-const redisConnection = new Redis(process.env.REDIS_URL, {
+const redisConnection = new Redis(process.env.RENDER_REDIS_URL, {
   maxRetriesPerRequest: null,
-  tls: { rejectUnauthorized: false }
 });
 
 console.log("Blog Worker is running and waiting for jobs...");
