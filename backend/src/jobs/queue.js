@@ -31,7 +31,8 @@ export async function addBlogJob(blogData, uniqueBlogId) {
     jobId: uniqueBlogId, // Ensure uniqueness to prevent duplicates
     removeOnComplete: true, // Keep Redis clean
     removeOnFail: 100, // Keeps only the last 100 failed jobs for debugging
-    attempts: 3, 
+    attempts: 3,
+    timeout: 180000,
     backoff: {
       type: "exponential",
       delay: 30000, // Wait 30 seconds before retrying
