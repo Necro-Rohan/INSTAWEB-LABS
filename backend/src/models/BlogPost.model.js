@@ -13,7 +13,7 @@ const BlogPostSchema = new mongoose.Schema(
     metaDescription: { type: String },
     h1: { type: String, required: true },
     coverImage: { type: String },
-    images: [{ type: String }], // for all imges
+    images: { type: [mongoose.Schema.Types.Mixed], default: [] }, // for all imges
 
     // THE NEW JSON OBJECT
     content: { type: Object, default: {} },

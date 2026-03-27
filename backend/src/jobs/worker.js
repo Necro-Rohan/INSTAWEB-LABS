@@ -40,19 +40,19 @@ const worker = new Worker(
             : generatedData.images[0];
       }
 
-      const sanitizedImages = generatedData.images.map((img) => {
-        return typeof img === "string" ? img : img.url;
-      });
+      // const sanitizedImages = generatedData.images.map((img) => {
+      //   return typeof img === "string" ? img : img.url;
+      // });
       // Save to DB
       await BlogPost.findOneAndUpdate(
-        { slug: slug }, 
+        { slug: slug },
         {
           $set: {
             metaTitle: generatedData.metaTitle,
             metaDescription: generatedData.metaDescription,
             h1: generatedData.h1,
             content: generatedData.content,
-            images: sanitizedImages,
+            images: generatedData.images,
             coverImage: coverImage,
             status: "published", // Turn the yellow badge green!
           },

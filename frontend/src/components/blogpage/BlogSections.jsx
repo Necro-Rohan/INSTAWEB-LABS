@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import { 
   CheckCircle2, TrendingUp, AlertTriangle, Star, 
   Target, Shield, ChevronDown, Calendar, Image as ImageIcon, 
-  Users, MapPin, List 
+  Users, MapPin, List, Scissors, Wrench, Smartphone, Laptop, 
+  MessageCircle, CreditCard, Clock, Globe, Award, Zap, Heart, 
+  ShoppingCart
 } from "lucide-react";
 
 const getImgUrl = (img) => {
@@ -13,7 +15,6 @@ const getImgUrl = (img) => {
 
 // Sleek Unsplash Attribution Overlay
 const UnsplashBadge = ({ img }) => {
-  // Only render if it's an object AND explicitly marked as Unsplash
   if (typeof img !== 'object' || !img?.isUnsplash) return null;
   
   return (
@@ -30,10 +31,10 @@ const UnsplashBadge = ({ img }) => {
   );
 };
 
-// --- LAYOUT COMPONENTS ---
+// LAYOUT COMPONENTS 
 export const Navbar = () => (
   <nav className="fixed top-0 w-full z-50 bg-[#f7f9fb]/90 backdrop-blur-xl transition-all duration-300 border-b border-slate-200/50">
-    <div className="flex justify-between items-center px-6 md:px-12 py-4 max-w-7xl mx-auto">
+    <div className="flex justify-between items-center px-3 md:px-12 py-4 max-w-7xl mx-auto">
       <Link to="/" className="text-2xl font-black text-[#5c218b] tracking-tighter flex items-center gap-2">
         <div className="w-8 h-8 bg-[#5c218b] rounded-lg flex items-center justify-center">
           <img src="/InstaWeb-Labs-icon.svg" className="w-5 h-5 invert brightness-0" alt="Logo" />
@@ -78,7 +79,7 @@ export const FinalCta = ({ post }) => (
   </section>
 );
 
-// --- CONTENT COMPONENTS ---
+// CONTENT COMPONENTS 
 export const HeroSection = ({ content, post, image }) => (
   <header className="pt-36 pb-20 px-6 max-w-7xl mx-auto">
     <div className="mb-8 flex items-center gap-2 text-sm font-bold tracking-widest uppercase text-[#5c218b]">
@@ -151,7 +152,7 @@ export const IntroSection = ({ content }) => (
 );
 
 export const TrendsSection = ({ content, image }) => (
-  <section className="py-32 px-6 max-w-7xl mx-auto">
+  <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
     <div className="flex flex-col lg:flex-row-reverse gap-20 items-center">
       <div className="lg:w-1/2 space-y-10">
         <div className="inline-block px-4 py-1.5 rounded-full bg-[#5c218b]/10 text-[#5c218b] text-xs font-bold tracking-widest uppercase">Trend Report</div>
@@ -182,7 +183,7 @@ export const TrendsSection = ({ content, image }) => (
 );
 
 export const CostOfInactionSection = ({ content, image }) => (
-  <section className="py-32 px-6 bg-[#191c1e] text-white">
+  <section className="py-20 md:py-32 px-6 bg-[#191c1e] text-white">
     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
       <div>
         <h2 className="text-4xl lg:text-5xl font-black tracking-tight mb-8 leading-tight">{content.heading}</h2>
@@ -204,34 +205,60 @@ export const CostOfInactionSection = ({ content, image }) => (
   </section>
 );
 
-export const FeaturesSection = ({ content }) => (
-  <section className="py-32 px-6 bg-white">
-    <div className="max-w-7xl mx-auto">
-      <h2 className="text-4xl font-black mb-16 text-center tracking-tight">{content.heading}</h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {content.list.map((feature, i) => {
-          const Icon = feature.iconKeyword.includes("calendar") ? Calendar 
-                     : feature.iconKeyword.includes("camera") ? ImageIcon 
-                     : feature.iconKeyword.includes("user") ? Users 
-                     : feature.iconKeyword.includes("map") ? MapPin 
-                     : List;
-          return (
-            <div key={i} className="p-8 rounded-3xl bg-[#f7f9fb] hover:bg-[#dae2fd]/30 transition-all duration-300 group border border-transparent hover:border-[#dae2fd]">
-              <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                <Icon className="w-6 h-6 text-[#5c218b]" />
+export const FeaturesSection = ({ content }) => {
+  //ICON DICTIONARY
+  const getSmartIcon = (keyword) => {
+    if (!keyword) return List;
+    const kw = keyword.toLowerCase();
+    
+    if (kw.includes("calendar") || kw.includes("time") || kw.includes("clock") || kw.includes("book")) return Calendar;
+    if (kw.includes("camera") || kw.includes("photo") || kw.includes("image") || kw.includes("gallery") || kw.includes("portfolio")) return ImageIcon;
+    if (kw.includes("user") || kw.includes("people") || kw.includes("client") || kw.includes("customer")) return Users;
+    if (kw.includes("map") || kw.includes("location") || kw.includes("pin") || kw.includes("geo")) return MapPin;
+    if (kw.includes("scissor") || kw.includes("hair") || kw.includes("salon") || kw.includes("beauty")) return Scissors;
+    if (kw.includes("wrench") || kw.includes("plumb") || kw.includes("tool") || kw.includes("repair") || kw.includes("fix")) return Wrench;
+    if (kw.includes("shield") || kw.includes("secure") || kw.includes("safe") || kw.includes("trust")) return Shield;
+    if (kw.includes("star") || kw.includes("review") || kw.includes("rate") || kw.includes("quality")) return Star;
+    if (kw.includes("phone") || kw.includes("mobile") || kw.includes("app") || kw.includes("smart")) return Smartphone;
+    if (kw.includes("message") || kw.includes("chat") || kw.includes("contact") || kw.includes("support")) return MessageCircle;
+    if (kw.includes("pay") || kw.includes("card") || kw.includes("price") || kw.includes("cost") || kw.includes("money")) return CreditCard;
+    if (kw.includes("shop") || kw.includes("cart") || kw.includes("store") || kw.includes("ecommerce")) return ShoppingCart;
+    if (kw.includes("web") || kw.includes("globe") || kw.includes("online") || kw.includes("domain") || kw.includes("site")) return Globe;
+    if (kw.includes("award") || kw.includes("cert") || kw.includes("best") || kw.includes("win")) return Award;
+    if (kw.includes("fast") || kw.includes("quick") || kw.includes("speed") || kw.includes("zap") || kw.includes("instant")) return Zap;
+    if (kw.includes("heart") || kw.includes("health") || kw.includes("care") || kw.includes("medical")) return Heart;
+
+    
+    return List; 
+  };
+
+  return (
+    <section className="py-20 md:py-32 px-6 bg-white">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl font-black mb-16 text-center tracking-tight">{content.heading}</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {content.list.map((feature, i) => {
+            // Dynamically grab the best icon based on the AI's keyword
+            const Icon = getSmartIcon(feature.iconKeyword);
+            
+            return (
+              <div key={i} className="p-8 rounded-3xl bg-[#f7f9fb] hover:bg-[#dae2fd]/30 transition-all duration-300 group border border-transparent hover:border-[#dae2fd]">
+                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <Icon className="w-6 h-6 text-[#5c218b]" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-[#191c1e]">{feature.title}</h3>
+                <p className="text-[#4a4455] text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: feature.description }}></p>
               </div>
-              <h3 className="text-xl font-bold mb-4 text-[#191c1e]">{feature.title}</h3>
-              <p className="text-[#4a4455] text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: feature.description }}></p>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export const CaseStudiesSection = ({ content, images }) => (
-  <section className="py-32 px-6 bg-[#f7f9fb]">
+  <section className="py-20 md:py-32 px-6 bg-[#f7f9fb]">
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
         <div className="max-w-xl">
@@ -239,23 +266,48 @@ export const CaseStudiesSection = ({ content, images }) => (
           <p className="text-[#4a4455] text-lg">See how local businesses are scaling with digital frameworks.</p>
         </div>
       </div>
+      
       <div className="grid lg:grid-cols-2 gap-8">
-        {content.studies.map((study, i) => (
-          <div key={i} className="relative rounded-3xl overflow-hidden bg-[#191c1e] group aspect-square lg:aspect-auto lg:h-[600px]">
-            <img src={images[i === 0 ? 3 : 4] || images[0]} alt="Success Story" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#191c1e] via-[#191c1e]/60 to-transparent flex items-end p-8 md:p-12">
-              <div>
-                <div className="text-[#e0b6ff] text-xs font-bold mb-4 uppercase tracking-[0.2em]">Case Study</div>
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-tight" dangerouslySetInnerHTML={{ __html: study.businessProfile }}></h3>
-                <div className="space-y-4">
-                  <p className="text-white/80 text-sm"><strong className="text-white">Problem:</strong> <span dangerouslySetInnerHTML={{ __html: study.theProblem }}></span></p>
-                  <p className="text-white/80 text-sm"><strong className="text-white">Solution:</strong> <span dangerouslySetInnerHTML={{ __html: study.theSolution }}></span></p>
-                  <p className="text-[#e0b6ff] font-medium mt-4 border-l-2 border-[#e0b6ff] pl-4" dangerouslySetInnerHTML={{ __html: study.theResult }}></p>
+        {content.studies.map((study, i) => {
+          const imgData = images[i === 0 ? 3 : 4] || images[0];
+          const safeImgUrl = typeof imgData === 'object' ? imgData.url : imgData;
+          
+          return (
+            <div key={i} className="relative rounded-3xl overflow-hidden bg-[#191c1e] group aspect-square md:aspect-square lg:aspect-auto lg:h-[600px]">
+              <img
+                src={safeImgUrl}
+                alt="Success Story"
+                className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
+              />
+            
+              {/* The Text Overlay Container */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#191c1e] via-[#191c1e]/80 to-transparent flex items-end p-6 md:p-10 lg:p-12">
+                <div className="w-full">
+                  <div className="text-[#e0b6ff] text-xs font-bold mb-3 uppercase tracking-[0.2em]">Case Study</div>
+                  <h4 className="text-xl lg:text-2xl font-bold text-white mb-4 leading-tight" dangerouslySetInnerHTML={{ __html: study.businessProfile }}></h4>
+                
+                  {/* MOBILE VIEW  */}
+                  <div className="block md:hidden">
+                    <p className="text-white/90 text-sm leading-relaxed border-l-2 border-[#e0b6ff] pl-3" dangerouslySetInnerHTML={{ __html: study.mobileSummary || study.theResult }}></p>
+                  </div>
+
+                  {/* TABLET VIEW */}
+                  <div className="hidden md:block lg:hidden">
+                    <p className="text-white/90 text-base leading-relaxed" dangerouslySetInnerHTML={{ __html: study.tabletSummary || (study.theProblem + " " + study.theResult) }}></p>
+                  </div>
+
+                  {/* DESKTOP VIEW */}
+                  <div className="hidden lg:block space-y-4">
+                    <p className="text-white/80 text-sm"><strong className="text-white">Problem:</strong> <span dangerouslySetInnerHTML={{ __html: study.theProblem }}></span></p>
+                    <p className="text-white/80 text-sm"><strong className="text-white">Solution:</strong> <span dangerouslySetInnerHTML={{ __html: study.theSolution }}></span></p>
+                    <p className="text-[#e0b6ff] font-medium mt-4 border-l-2 border-[#e0b6ff] pl-4" dangerouslySetInnerHTML={{ __html: study.theResult }}></p>
+                  </div>
+
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ); 
+        })} 
       </div>
     </div>
   </section>
@@ -306,7 +358,7 @@ export const CompetitorSection = ({ content }) => {
   };
 
   return (
-    <section className="py-32 px-6 max-w-7xl mx-auto">
+    <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
       <h2 className="text-4xl font-black text-center mb-20 tracking-tight">{content.heading}</h2>
       <div className="grid lg:grid-cols-3 gap-8 items-center">
         {content.comparisons.map((comp, index) => (
@@ -318,7 +370,7 @@ export const CompetitorSection = ({ content }) => {
 };
 
 export const BenefitsSection = ({ content, image }) => (
-  <section className="py-32 px-6 bg-white border-t border-slate-100">
+  <section className="py-20 md:py-32 px-6 bg-white border-t border-slate-100">
     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
       <div className="order-2 lg:order-1 relative">
          <div className="absolute -inset-4 bg-[#dae2fd] rounded-3xl blur-2xl"></div>
@@ -352,7 +404,7 @@ export const BenefitsSection = ({ content, image }) => (
 );
 
 export const LocalSeoSection = ({ content }) => (
-  <section className="py-32 px-6 max-w-7xl mx-auto">
+  <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
     <div className="bg-[#5c218b] text-white rounded-3xl overflow-hidden grid lg:grid-cols-12 items-stretch shadow-2xl">
       <div className="lg:col-span-7 p-12 lg:p-20 space-y-8 z-10">
         <h2 className="text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">{content.heading}</h2>
@@ -373,7 +425,7 @@ export const LocalSeoSection = ({ content }) => (
 export const FaqSection = ({ content }) => {
   const [openIndex, setOpenIndex] = useState(0);
   return (
-    <section className="py-32 px-6 max-w-4xl mx-auto">
+    <section className="py-20 md:py-32 px-6 max-w-4xl mx-auto">
       <h2 className="text-4xl font-black text-center mb-16 tracking-tight">{content.heading}</h2>
       <div className="space-y-4">
         {content.questions.map((faq, index) => (

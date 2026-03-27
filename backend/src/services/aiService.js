@@ -15,10 +15,10 @@ cloudinary.config({
 
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const githubAI = new OpenAI({
-  baseURL: "https://models.inference.ai.azure.com",
-  apiKey: process.env.GITHUB_TOKEN,
-});
+// const githubAI = new OpenAI({
+//   baseURL: "https://models.inference.ai.azure.com",
+//   apiKey: process.env.GITHUB_TOKEN,
+// });
 
 const MASTER_FAQ_LIST = `
 1. Why does a business need a website?
@@ -200,6 +200,20 @@ function getTopHalfSchema(category, geography) {
               type: Type.OBJECT,
               properties: {
                 businessProfile: { type: Type.STRING },
+                
+                // Mobile (Ultra Short)
+                mobileSummary: {
+                  type: Type.STRING,
+                  description: "A punchy, 15-20 word summary of the overall success and revenue growth for mobile screens.",
+                },
+                
+                // Tablet (Medium)
+                tabletSummary: {
+                  type: Type.STRING,
+                  description: "A 35-40 word summary combining the problem and the final result for tablet screens.",
+                },
+
+                // Desktop (Full Story)
                 theProblem: {
                   type: Type.STRING,
                   description: "40-word description of their struggles.",
@@ -243,12 +257,12 @@ function getBottomHalfSchema(category, geography) {
                 platformName: { type: Type.STRING },
                 biggestDrawback: {
                   type: Type.STRING,
-                  description: `A detailed pointwise drawback (minimum 3 points) explanation of why it fails for a ${category} in ${geography}.`,
+                  description: `A detailed pointwise(numbered list) drawback (minimum 3 points) explanation of why it fails for a ${category} in ${geography}.`,
                 },
                 ourAdvantage: {
                   type: Type.STRING,
                   description:
-                    "A detailed pointwise advantage (minimum 3 points) explanation of why Websites.co.in is superior.",
+                    "A detailed pointwise(numbered list) advantage (minimum 3 points) explanation of why Websites.co.in is superior.",
                 },
               },
             },
@@ -408,10 +422,12 @@ export async function generateSEOContentPipeline(adjective, category, geography)
 async function callGemini(prompt, schema) {
   let maxRetries = 3;
   for (let i = 0; i < maxRetries; i++) {
+    let finishReason = "UNKNOWN";
     try {
       const response = await genAI.models.generateContent({
-        // model: "gemini-2.5-flash",
-        model: "gemini-3.1-flash-lite-preview",
+        model: "gemini-2.5-flash",
+        // model: "gemini-3.1-flash-live-preview",
+        // models/gemini-3.1-flash-lite-preview
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -420,6 +436,8 @@ async function callGemini(prompt, schema) {
           temperature: 0.7,
         },
       });
+
+      finishReason = response.candidates?.[0]?.finishReason;
 
       let rawText = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
       return JSON.parse(rawText);
@@ -432,7 +450,11 @@ async function callGemini(prompt, schema) {
         continue;
       }
       if (error instanceof SyntaxError) {
-        console.error("CRITICAL: The AI generated too much text and cut off the JSON string.");
+        if (finishReason === 'MAX_TOKENS') {
+          console.error("CRITICAL [LIMIT]: The AI generated too much text and hit the 8,192 token ceiling!");
+        } else {
+          console.error(`CRITICAL [TYPO]: The AI wrote bad JSON! It did NOT hit the token limit. (Finish Reason: ${finishReason})`);
+        }
       }
       if (i === maxRetries - 1) throw error;
     }
@@ -567,7 +589,7 @@ async function generateImages(category, geography) {
         );
 
         return {
-          url: randomPhoto.urls.regular,
+          url: randomPhoto.urls.full,
           photographerName: randomPhoto.user.name,
           photographerUrl: randomPhoto.user.links.html,
           isUnsplash: true,
@@ -590,7 +612,7 @@ async function generateImages(category, geography) {
     if (!pollinationKey) return null; // Immediately fail if no key
 
     const seed = Math.floor(Math.random() * 100000);
-    const pollinationsUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=800&height=450&nologo=true&model=flux&seed=${seed}&key=${pollinationKey}`;
+    const pollinationsUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(promptText)}?width=1200&height=675&nologo=true&model=flux&seed=${seed}&key=${pollinationKey}`;
 
     try {
       const arrayBuffer = await fetchWithRetry(pollinationsUrl, {
@@ -609,20 +631,23 @@ async function generateImages(category, geography) {
   };
 
   function getBusinessPrompt(category, geography) {
+    const baseStyle = "cinematic lighting, 8k resolution, architectural photography, ultra-realistic, shot on 35mm lens";
+    
     const retail = ["salon", "boutique", "spa", "restaurant", "cafe", "store"];
     const healthcare = ["clinic", "hospital", "dental clinic"];
     const fitness = ["gym", "fitness center", "yoga studio"];
     const services = ["plumber", "electrician", "carpenter", "cleaner"];
 
     if (retail.includes(category))
-      return `modern ${category} storefront in ${geography}, urban street, photorealistic`;
+      return `Premium luxury ${category} storefront in ${geography}, modern interior design, elegant decor, ${baseStyle}`;
     if (healthcare.includes(category))
-      return `modern ${category} building in ${geography}, medical facility exterior, realistic photography`;
+      return `State-of-the-art modern ${category} facility in ${geography}, clean bright medical environment, ${baseStyle}`;
     if (fitness.includes(category))
-      return `modern ${category} interior in ${geography}, workout equipment, professional studio`;
+      return `High-end luxury ${category} interior in ${geography}, premium workout equipment, dramatic lighting, ${baseStyle}`;
     if (services.includes(category))
-      return `professional ${category} working at client location in ${geography}, realistic photography`;
-    return `Modern ${category} website in ${geography} showcasing local business online presence`;
+      return `Professional ${category} performing high-end service in beautiful modern home in ${geography}, focus on detail, ${baseStyle}`;
+      
+    return `Modern premium ${category} business in ${geography}, professional atmosphere, ${baseStyle}`;
   }
 
   const imageConfigs = [
@@ -633,7 +658,7 @@ async function generateImages(category, geography) {
     },
     {
       type: "flux",
-      prompt: `modern SaaS website builder dashboard showing analytics for ${category} business, clean UI interface, charts and graphs`,
+      prompt: `UI/UX, dribbble style, sleek modern SaaS dashboard showing analytics for ${category} business, clean UI interface, charts and graphs`,
       unsplashFallback: `business analytics dashboard laptop`,
     },
     { type: "unsplash", prompt: `${category} service professional` },
@@ -750,3 +775,4 @@ async function generateImages(category, geography) {
 
 //   return finalHtml;
 // }
+
