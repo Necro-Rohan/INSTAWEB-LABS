@@ -5,7 +5,7 @@ import {
   Target, Shield, ChevronDown, Calendar, Image as ImageIcon, 
   Users, MapPin, List, Scissors, Wrench, Smartphone, Laptop, 
   MessageCircle, CreditCard, Clock, Globe, Award, Zap, Heart, 
-  ShoppingCart
+  ShoppingCart, CheckCircle, XCircle, Trophy, Check, Minus, X
 } from "lucide-react";
 
 const getImgUrl = (img) => {
@@ -65,7 +65,7 @@ export const Footer = () => (
 );
 
 export const FinalCta = ({ post }) => (
-  <section className="py-24 px-6 max-w-7xl mx-auto mb-20">
+  <section className="py-24 md:py-30 px-6 max-w-7xl mx-auto mb-20">
     <div className="bg-gradient-to-br from-[#5c218b] via-[#753ca5] to-[#9900ab] rounded-3xl p-12 lg:p-24 text-center text-white relative overflow-hidden shadow-2xl">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent)] pointer-events-none"></div>
       <h2 className="text-4xl lg:text-6xl font-black mb-8 tracking-tighter max-w-4xl mx-auto leading-tight">Ready to Build Your Digital Atelier?</h2>
@@ -81,7 +81,7 @@ export const FinalCta = ({ post }) => (
 
 // CONTENT COMPONENTS 
 export const HeroSection = ({ content, post, image }) => (
-  <header className="pt-36 pb-20 px-6 max-w-7xl mx-auto">
+  <header className="pt-24 pb-20 px-6 max-w-7xl mx-auto">
     <div className="mb-8 flex items-center gap-2 text-sm font-bold tracking-widest uppercase text-[#5c218b]">
       <Link to="/" >Home</Link>
       <ChevronDown className="w-4 h-4 -rotate-90" />
@@ -89,7 +89,7 @@ export const HeroSection = ({ content, post, image }) => (
     </div>
     <div className="grid lg:grid-cols-2 gap-16 items-center">
       <div>
-        <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black tracking-tighter text-[#191c1e] leading-[1.1] mb-8">
+        <h1 className="text-4xl lg:text-6xl xl:text-7xl font-black tracking-tighter text-[#191c1e] leading-[1.1] mb-8">
           {content.h1}
         </h1>
         <p
@@ -134,7 +134,7 @@ export const HeroSection = ({ content, post, image }) => (
 );
 
 export const IntroSection = ({ content }) => (
-  <section className="py-24 px-6 bg-white border-y border-slate-100">
+  <section className="py-24 md:py-30 px-6 bg-white border-y border-slate-100">
     <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center">
       <div className="lg:col-span-7 space-y-6">
         <h2 className="text-3xl font-black mb-8 text-[#191c1e] tracking-tight">{content.heading}</h2>
@@ -152,7 +152,7 @@ export const IntroSection = ({ content }) => (
 );
 
 export const TrendsSection = ({ content, image }) => (
-  <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
+  <section className="py-15 md:py-20 px-6 max-w-7xl mx-auto">
     <div className="flex flex-col lg:flex-row-reverse gap-20 items-center">
       <div className="lg:w-1/2 space-y-10">
         <div className="inline-block px-4 py-1.5 rounded-full bg-[#5c218b]/10 text-[#5c218b] text-xs font-bold tracking-widest uppercase">Trend Report</div>
@@ -183,7 +183,7 @@ export const TrendsSection = ({ content, image }) => (
 );
 
 export const CostOfInactionSection = ({ content, image }) => (
-  <section className="py-20 md:py-32 px-6 bg-[#191c1e] text-white">
+  <section className="py-15 md:py-20 px-6 bg-[#191c1e] text-white">
     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
       <div>
         <h2 className="text-4xl lg:text-5xl font-black tracking-tight mb-8 leading-tight">{content.heading}</h2>
@@ -233,7 +233,7 @@ export const FeaturesSection = ({ content }) => {
   };
 
   return (
-    <section className="py-20 md:py-32 px-6 bg-white">
+    <section className="py-15 md:py-20 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-black mb-16 text-center tracking-tight">{content.heading}</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -247,7 +247,7 @@ export const FeaturesSection = ({ content }) => {
                   <Icon className="w-6 h-6 text-[#5c218b]" />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-[#191c1e]">{feature.title}</h3>
-                <p className="text-[#4a4455] text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: feature.description }}></p>
+                <p className="text-[#4a4455] text-md leading-relaxed" dangerouslySetInnerHTML={{ __html: feature.description }}></p>
               </div>
             );
           })}
@@ -258,7 +258,7 @@ export const FeaturesSection = ({ content }) => {
 };
 
 export const CaseStudiesSection = ({ content, images }) => (
-  <section className="py-20 md:py-32 px-6 bg-[#f7f9fb]">
+  <section className="py-15 md:py-20 px-6 bg-[#f7f9fb]">
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
         <div className="max-w-xl">
@@ -281,7 +281,7 @@ export const CaseStudiesSection = ({ content, images }) => (
               />
             
               {/* The Text Overlay Container */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#191c1e] via-[#191c1e]/80 to-transparent flex items-end p-6 md:p-10 lg:p-12">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#191c1e] via-[#191c1e]/80 to-transparent flex items-center p-6 md:p-10 lg:p-12 hover:scale-105 transition-transform duration-700">
                 <div className="w-full">
                   <div className="text-[#e0b6ff] text-xs font-bold mb-3 uppercase tracking-[0.2em]">Case Study</div>
                   <h4 className="text-xl lg:text-2xl font-bold text-white mb-4 leading-tight" dangerouslySetInnerHTML={{ __html: study.businessProfile }}></h4>
@@ -314,63 +314,153 @@ export const CaseStudiesSection = ({ content, images }) => (
 );
 
 export const CompetitorSection = ({ content }) => {
-  const CompetitorCard = ({ comp, isMiddle }) => {
-    const renderFormattedText = (text) => {
-      if (!text) return null;
-      const listItems = text.split(/(?:\d+\.\s+|[•\-*]\s+)/).filter(item => item.trim() !== '');
-      const startsWithBullet = /^(?:\d+\.|[•\-*])\s/.test(text.trim());
-  
-      if (listItems.length > 1 || startsWithBullet) {
-        return (
-          <ul className="space-y-3 mt-2">
-            {listItems.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2.5">
-                <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${isMiddle ? 'bg-white' : 'bg-slate-400'}`}></div>
-                <span className="text-sm leading-relaxed block" dangerouslySetInnerHTML={{ __html: item.trim() }} />
-              </li>
-            ))}
-          </ul>
-        );
-      }
-      return <p className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: text }}></p>;
-    };
-  
+
+  const [activeTab, setActiveTab] = useState(0);
+
+  const comparisons = content?.comparisons 
+    ? [...content.comparisons].sort((a, b) => a.rank - b.rank) 
+    : [];
+
+  if (comparisons.length === 0) return null;
+
+  const renderList = (text, type, isRankOne) => {
+    if (!text) return null;
+    
+    const listItems = text.split(/(?:\d+\.\s+|[•\-*]\s+)/).filter(item => item.trim() !== '');
+
     return (
-      <div className={`p-10 rounded-3xl transition-all duration-300 relative ${isMiddle ? 'bg-[#5c218b] text-white shadow-2xl scale-105 z-10' : 'bg-white border border-slate-200 hover:shadow-xl'}`}>
-        {isMiddle && <div className="absolute -top-4 right-8 px-4 py-1 bg-[#e0b6ff] text-[#36003d] text-xs font-bold rounded-full">VS</div>}
-        <h4 className={`text-2xl font-bold mb-8 ${isMiddle ? 'text-white' : 'text-slate-900'}`}>{comp.platformName}</h4>
-        <div className="space-y-8">
-          <div>
-            <span className={`text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2 ${isMiddle ? 'text-[#ffb6ff]' : 'text-red-500'}`}>
-              <Target className="w-4 h-4" /> The Drawback
-            </span>
-            <div className={isMiddle ? 'text-white/90' : 'text-slate-600'}>{renderFormattedText(comp.biggestDrawback)}</div>
-          </div>
-          <div className={`pt-6 border-t ${isMiddle ? 'border-white/20' : 'border-slate-100'}`}>
-            <span className={`text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2 ${isMiddle ? 'text-[#e0b6ff]' : 'text-[#5c218b]'}`}>
-              <Shield className="w-4 h-4" /> Our Advantage
-            </span>
-            <div className={isMiddle ? 'text-white font-medium' : 'text-slate-800 font-medium'}>{renderFormattedText(comp.ourAdvantage)}</div>
-          </div>
-        </div>
-      </div>
+      <ul className={`space-y-4 ${type === 'bad' && isRankOne ? 'opacity-80' : ''}`}>
+        {listItems.map((item, idx) => {
+          let IconComponent;
+          let iconColor;
+
+          if (type === 'good') {
+            IconComponent = Check;
+            iconColor = "text-[#5c218b]"; // Purple checkmarks for The Good
+          } else if (type === 'bad' && isRankOne) {
+            IconComponent = Minus;
+            iconColor = "text-slate-400"; // Subtle gray minus for Rank 1's minor flaws
+          } else {
+            IconComponent = X;
+            iconColor = "text-red-500"; // Red X for competitor flaws
+          }
+
+          return (
+            <li key={idx} className="flex items-start gap-4">
+              <IconComponent className={`w-5 h-5 mt-0.5 shrink-0 ${iconColor}`} strokeWidth={3} />
+              <b><p className="text-[#4a4455] leading-relaxed text-sm" dangerouslySetInnerHTML={{ __html: item.trim() }} /></b>
+            </li>
+          );
+        })}
+      </ul>
     );
   };
 
   return (
-    <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
-      <h2 className="text-4xl font-black text-center mb-20 tracking-tight">{content.heading}</h2>
-      <div className="grid lg:grid-cols-3 gap-8 items-center">
-        {content.comparisons.map((comp, index) => (
-          <CompetitorCard key={index} comp={comp} isMiddle={index === 1} />
-        ))}
+    <section className="py-10 md:py-20 px-6 bg-[#f7f9fb]/50 overflow-x-hidden border-y border-slate-100">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl lg:text-5xl font-black text-center mb-16 tracking-tight text-[#191c1e]">
+          {content.heading}
+        </h2>
+
+        {/* The Buttons */}
+        <div className="flex flex-wrap justify-center gap-3 mb-16">
+          {comparisons.map((comp, index) => {
+            const isActive = activeTab === index;
+            const isRankOne = comp.rank === 1;
+
+            return (
+              <button
+                key={index}
+                onClick={() => setActiveTab(index)}
+                className={`px-8 py-3 rounded-full font-bold transition-all duration-300 ${
+                  isActive
+                    ? "bg-[#5c218b] text-white shadow-lg shadow-purple-900/20 scale-105"
+                    : "bg-white text-[#4a4455] hover:bg-[#eceef0] border border-slate-200 shadow-sm"
+                }`}
+              >
+                {/* little trophy icon just for Rank 1's tab */}
+                <div className="flex items-center gap-2">
+                  {isRankOne && (
+                    <Trophy
+                      className={`w-4 h-4 ${isActive ? "text-[#ffb6ff]" : "text-[#5c218b]"}`}
+                    />
+                  )}
+                  {comp.platformName}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        
+
+        {/*TAB CONTENT PANELS */}
+        <div className="w-full">
+          {comparisons.map((comp, index) => {
+            const isActive = activeTab === index;
+            const isRankOne = comp.rank === 1;
+
+            return (
+              <div
+                key={index}
+                // keeping all panels in the DOM for smooth fade transitions, but only the active one is visible and fully opaque
+                className={`w-full transition-opacity duration-300 ${
+                  isActive
+                    ? "block opacity-100 animate-in fade-in zoom-in-95"
+                    : "hidden opacity-0"
+                }`}
+              >
+                <div className="grid lg:grid-cols-2 gap-8">
+                  {/* THE GOOD BLOCK */}
+                  <div
+                    className={`bg-white p-8 lg:p-12 rounded-3xl shadow-sm relative group overflow-hidden ${
+                      isRankOne
+                        ? "border-l-8 border-[#5c218b]"
+                        : "border border-slate-200"
+                    }`}
+                  >
+                    {isRankOne && (
+                      <div className="absolute top-4 right-6 bg-[#5c218b]/10 text-[#5c218b] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
+                        #1 Editor's Choice
+                      </div>
+                    )}
+                    <h3 className={`text-3xl font-black mb-8 flex items-center pt-4 md:pt-0 gap-3 text-[#191c1e]`}>
+                      <CheckCircle className="text-[#5c218b] w-8 h-8" /> The
+                      Good
+                    </h3>
+                    {renderList(comp.theGood, "good", isRankOne)}
+                  </div>
+
+                  {/* THE BAD BLOCK */}
+                  <div
+                    className={`bg-[#f7f9fb] p-8 lg:p-12 rounded-3xl shadow-sm ${
+                      isRankOne
+                        ? "border border-slate-200"
+                        : "border-l-8 border-red-500"
+                    }`}
+                  >
+                    <h3
+                      className={`text-3xl font-black mb-8 flex items-center gap-3 ${
+                        isRankOne ? "text-[#4a4455]" : "text-red-500"
+                      }`}
+                    >
+                      <XCircle className="w-8 h-8" /> The Bad
+                    </h3>
+                    {renderList(comp.theBad, "bad", isRankOne)}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
 };
 
 export const BenefitsSection = ({ content, image }) => (
-  <section className="py-20 md:py-32 px-6 bg-white border-t border-slate-100">
+  <section className="py-15 md:py-20 px-6 bg-white border-t border-slate-100">
     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
       <div className="order-2 lg:order-1 relative">
          <div className="absolute -inset-4 bg-[#dae2fd] rounded-3xl blur-2xl"></div>
@@ -390,10 +480,12 @@ export const BenefitsSection = ({ content, image }) => (
         <div className="grid sm:grid-cols-2 gap-6 pt-6">
           {content.platformBenefits.map((benefit, i) => (
             <div key={i} className="flex gap-4">
-              <CheckCircle2 className="w-6 h-6 text-[#5c218b] shrink-0" />
+              <div className="w-12 h-12 rounded-full bg-[#f2daff] flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-6 h-6 text-[#5c218b] shrink-0 justify-content" />
+              </div>
               <div>
-                <h4 className="font-bold text-[#191c1e] mb-1">{benefit.benefitName}</h4>
-                <p className="text-sm text-[#4a4455] leading-relaxed" dangerouslySetInnerHTML={{ __html: benefit.benefitDetail }}></p>
+                <h4 className="font-bold text-md text-[#191c1e] mb-1">{benefit.benefitName}</h4>
+                <p className="text-md text-[#4a4455] leading-relaxed" dangerouslySetInnerHTML={{ __html: benefit.benefitDetail }}></p>
               </div>
             </div>
           ))}
@@ -404,9 +496,9 @@ export const BenefitsSection = ({ content, image }) => (
 );
 
 export const LocalSeoSection = ({ content }) => (
-  <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
-    <div className="bg-[#5c218b] text-white rounded-3xl overflow-hidden grid lg:grid-cols-12 items-stretch shadow-2xl">
-      <div className="lg:col-span-7 p-12 lg:p-20 space-y-8 z-10">
+  <section className="py-15 md:py-20 px-6 max-w-7xl mx-auto">
+    <div className="bg-[#5c218b] text-white rounded-3xl overflow-hidden grid lg:grid-cols-20 items-stretch shadow-2xl">
+      <div className="lg:col-span-13 p-12 lg:p-20 space-y-8 z-10">
         <h2 className="text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">{content.heading}</h2>
         <div className="space-y-6 text-[#e5c1ff]">
           {content.paragraphs.map((p, i) => (
@@ -414,7 +506,7 @@ export const LocalSeoSection = ({ content }) => (
           ))}
         </div>
       </div>
-      <div className="lg:col-span-5 relative min-h-[400px]">
+      <div className="lg:col-span-7 relative min-h-100">
          <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800" alt="Local SEO Map" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50" />
          <div className="absolute inset-0 bg-gradient-to-r from-[#5c218b] to-transparent"></div>
       </div>
@@ -424,19 +516,35 @@ export const LocalSeoSection = ({ content }) => (
 
 export const FaqSection = ({ content }) => {
   const [openIndex, setOpenIndex] = useState(0);
+  
   return (
-    <section className="py-20 md:py-32 px-6 max-w-4xl mx-auto">
+    <section className="py-15 md:py-20 px-6 max-w-4xl mx-auto">
       <h2 className="text-4xl font-black text-center mb-16 tracking-tight">{content.heading}</h2>
       <div className="space-y-4">
         {content.questions.map((faq, index) => (
           <div key={index} className="bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all duration-300 hover:border-slate-300">
-            <button onClick={() => setOpenIndex(openIndex === index ? -1 : index)} className="w-full text-left px-8 py-6 flex justify-between items-center focus:outline-none">
+            
+            <button 
+              onClick={() => setOpenIndex(openIndex === index ? -1 : index)} 
+              className="w-full text-left px-8 py-4 flex justify-between items-center focus:outline-none"
+            >
               <span className="font-bold text-lg text-[#191c1e] pr-8">{faq.question}</span>
               <ChevronDown className={`w-6 h-6 text-slate-400 shrink-0 transition-transform duration-300 ${openIndex === index ? 'rotate-180 text-[#5c218b]' : ''}`} />
             </button>
-            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-              <div className="px-8 pb-8 text-[#4a4455] leading-relaxed" dangerouslySetInnerHTML={{ __html: faq.answer }}></div>
+            
+            <div 
+              className={`grid transition-all duration-300 ease-in-out ${
+                openIndex === index ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div 
+                  className="px-8 pb-8 font-medium text-md md:text-lg text-[#4a4455] leading-relaxed" 
+                  dangerouslySetInnerHTML={{ __html: faq.answer }}
+                ></div>
+              </div>
             </div>
+
           </div>
         ))}
       </div>

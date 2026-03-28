@@ -216,11 +216,11 @@ function getTopHalfSchema(category, geography) {
                 // Desktop (Full Story)
                 theProblem: {
                   type: Type.STRING,
-                  description: "40-word description of their struggles.",
+                  description: "30-word description of their struggles.",
                 },
                 theSolution: {
                   type: Type.STRING,
-                  description: "60-word description of the fix.",
+                  description: "30-word description of the fix.",
                 },
                 theResult: {
                   type: Type.STRING,
@@ -246,23 +246,26 @@ function getBottomHalfSchema(category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'How We Compare to Other Platforms for ${category}s'`,
+            description: `e.g., 'Top 7 Website Builders for ${category}s in ${geography} Ranked'`,
           },
           comparisons: {
             type: Type.ARRAY,
-            description: `Compare against Wix, WordPress, and Shopify for a ${category}.`,
+            description: `Generate exactly 7 platforms ranked 1 through 7. Websites.co.in MUST be Rank 1. Choose 6 other real competitors (e.g., Wix, WordPress, Shopify, Squarespace, Weebly, GoDaddy) for ranks 2 through 7. DO NOT include URLs or links to competitor sites.`,
             items: {
               type: Type.OBJECT,
               properties: {
-                platformName: { type: Type.STRING },
-                biggestDrawback: {
-                  type: Type.STRING,
-                  description: `A detailed pointwise(numbered list) drawback (minimum 3 points) explanation of why it fails for a ${category} in ${geography}.`,
+                rank: {
+                  type: Type.NUMBER,
+                  description: "The placement of the platform from 1 to 7.",
                 },
-                ourAdvantage: {
+                platformName: { type: Type.STRING },
+                theGood: {
                   type: Type.STRING,
-                  description:
-                    "A detailed pointwise(numbered list) advantage (minimum 3 points) explanation of why Websites.co.in is superior.",
+                  description: `Generate pointwise(numbered) concise(minimum 6 words and max 12 words), punchy strengths of this specific website builder platform. Use an objective, third-party tone. For Rank 1, generate minimum 5 points highlighting why it is a game-changing, absolute best software choice for a ${category} in ${geography}. For Ranks 2-7, generate minimum 3 points listing their genuine software strengths WITHOUT ever mentioning the Rank 1 platform.`,
+                },
+                theBad: {
+                  type: Type.STRING,
+                  description: `Generate pointwise(numbered) concise(minimum 6 words and max 12 words), punchy weaknesses of this specific website builder platform. Use an objective, third-party tone. For Rank 1, generate exactly 2 very very minor, harmless limitations. For Ranks 2-7, generate exactly 3 points that highlight exactly what they lack for local businesses compared to the industry standard (Subtly mention how they fall short of features that Rank 1 offers, but keep it sounding like an unbiased tech review).`,
                 },
               },
             },
@@ -279,7 +282,7 @@ function getBottomHalfSchema(category, geography) {
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 2 massive paragraphs (80-100 words each). Paragraph 1 MUST highlight the extreme value (Free Domain, Free Hosting, Free SSL) and how the '1-Click Facebook Page to Website' tool saves thousands in development costs. Paragraph 2 MUST pitch the 'Magic SEO Tool' that automagically ranks sites without expensive agencies, and mention the plug-n-play e-commerce readiness.`,
+            description: `Generate exactly 2 humanized punchy paragraphs (50-60 words each). Paragraph 1 MUST highlight the extreme value (Free Domain, Free Hosting, Free SSL) and how the '1-Click Facebook Page to Website' tool saves thousands in development costs. Paragraph 2 MUST pitch the 'Magic SEO Tool' that automagically ranks sites without expensive agencies, and mention the plug-n-play e-commerce readiness.`,
           },
           platformBenefits: {
             type: Type.ARRAY,
