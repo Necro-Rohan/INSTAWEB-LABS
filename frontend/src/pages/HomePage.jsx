@@ -175,8 +175,16 @@ export default function HomePage() {
 
         {/* Initial Load State (Only shows when completely empty) */}
         {loading && posts.length === 0 ? (
-          <div className="flex justify-center items-center py-32">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+            {[...Array(9)].map((_, i) => (
+              <div key={i} className="flex flex-col h-full animate-pulse">
+                <div className="aspect-16/10 bg-slate-200 rounded-xl mb-6"></div>
+                <div className="h-4 bg-slate-200 rounded w-1/4 mb-4"></div>
+                <div className="h-8 bg-slate-200 rounded w-full mb-3"></div>
+                <div className="h-4 bg-slate-200 rounded w-full mb-6 grow"></div>
+                <div className="h-6 bg-slate-200 rounded w-1/2 mt-auto"></div>
+              </div>
+            ))}
           </div>
         ) : (
           /* Soft Loading Wrapper to Dim the grid instead of destroying it */

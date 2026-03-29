@@ -29,12 +29,13 @@ export async function addBlogJob(blogData, uniqueBlogId) {
     removeOnComplete: true, 
     removeOnFail: 100, // only the last 100 failed jobs for debugging
     attempts: 3,
-    timeout: 180000,
+    timeout: 300000,
     backoff: {
       type: "exponential",
       delay: 30000, // Wait 30 seconds before retrying
     },
     removeOnComplete: true,
+    removeOnFail: 100
   });
   
   console.log(`Job added to queue! Job ID: ${job.id}`);

@@ -81,9 +81,20 @@ const worker = new Worker(
       max: 20,
       duration: 3600000, // 1 hour
     },
+    lockDuration: 300000, // Telling BullMQ this job might take up to 5 minutes
+    stalledInterval: 300000, // Don't check for stalled jobs for 5 minutes
+    maxStalledCount: 1, // If it stalls, try it 1 more time before failing
   },
 );
 
 worker.on('failed', (job, err) => {
   console.log(`Job ${job.id} has permanently failed after retries with error ${err.message}`);
+});
+
+worker.on('stalled', (jobId) => {
+  console.warn(`Job ${jobId} STALLED! The AI is taking longer than expected.`);
+});
+
+worker.on("error", (err) => {
+  console.error(`Fatal Worker Error:`, err);
 });
