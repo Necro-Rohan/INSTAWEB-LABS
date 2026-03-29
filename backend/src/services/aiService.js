@@ -350,14 +350,14 @@ function getBottomHalfSchema(category, geography) {
           },
           questions: {
             type: Type.ARRAY,
-            description: `Select exactly 12 questions from the provided MASTER FAQ LIST. Answer them specifically for ${category} owners in ${geography}.`,
+            description: `Select exactly 12 questions from the provided MASTER_FAQ_LIST. Answer them specifically for ${category} owners in ${geography}.`,
             items: {
               type: Type.OBJECT,
               properties: {
                 question: {
                   type: Type.STRING,
                   description:
-                    "Must be an exact question selected from the MASTER FAQ LIST.",
+                    "Must be an exact question selected from the MASTER_FAQ_LIST.",
                 },
                 answer: {
                   type: Type.STRING,
@@ -578,7 +578,7 @@ async function generateJSONContent(keyword, category, geography) {
   const topHalfPrompt = `${basePrompt}\nFocus on the Introduction, Trends, Cost of Inaction, Features , and Case Studies.`;
   const topSchema = getTopHalfSchema(category, geography);
 
-  const bottomHalfPrompt = `${basePrompt}\nFocus on the Competitor Comparison, Why Choose Us, How It Works, Local SEO Guide, and FAQs. **THE FAQ PROTOCOL:** For the FAQ section, you are strictly forbidden from making up your own questions. You MUST select exactly 12 questions from this exact list:
+  const bottomHalfPrompt = `${basePrompt}\nFocus on the Competitor Comparison, Why Choose Us, How It Works, Local SEO Guide, and FAQs. **THE FAQs PROTOCOL:** For the faqs section, you are strictly forbidden from making up your own questions. You MUST select exactly 12 questions from this exact list:
   ${MASTER_FAQ_LIST}
   When answering these 12 questions, seamlessly weave the answers into the context of a ${category} business in ${geography}.`;
   const bottomSchema = getBottomHalfSchema(category, geography);

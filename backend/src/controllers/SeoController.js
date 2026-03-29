@@ -27,8 +27,8 @@ export const renderSeoBlogPage = async (req, res) => {
       };
 
       let faqSchemaHtml = "";
-      if (post.content && post.content.faqs && post.content.faqs.length > 0) {
-        const faqItems = post.content.faqs.map(faq => ({
+      if (post.content && post.content.faqs && Array.isArray(post.content.faqs.questions) && post.content.faqs.questions.length > 0) {
+        const faqItems = post.content.faqs.questions.map(faq => ({
           "@type": "Question",
           "name": faq.question,
           "acceptedAnswer": {
@@ -59,7 +59,7 @@ export const renderSeoBlogPage = async (req, res) => {
       `;
 
       htmlData = htmlData
-        .replace("<title>Website Studio | Smart Website Builder for Local Businesses</title>","")
+        .replace(/<title>.*?<\/title>/, "")
         .replace("</head>", `${seoTags}\n</head>`);
       
       htmlData = htmlData.replace(
@@ -68,7 +68,7 @@ export const renderSeoBlogPage = async (req, res) => {
           <div style="opacity: 0; position: absolute; z-index: -1;">
             <h1>${post.h1}</h1>
             <p>${post.metaDescription}</p>
-            ${post.content && post.content.faqs ? post.content.faqs.map(faq => `
+            ${post.content && post.content.faqs && Array.isArray(post.content.faqs.questions) ? post.content.faqs.questions.map(faq => `
               <div>
                 <h2>${faq.question}</h2>
                 <p>${faq.answer}</p>
@@ -81,7 +81,7 @@ export const renderSeoBlogPage = async (req, res) => {
       return res.status(200).send(htmlData);
         
     } else {
-      htmlData = htmlData.replace('<title>Website Studio | Smart Website Builder for Local Businesses</title>', `<title>Post Not Found | Website Studio</title>`);
+      htmlData = htmlData.replace(/<title>.*?<\/title>/, `<title>Post Not Found | Website Studio</title>`);
       return res.status(404).send(htmlData);
     }
 

@@ -41,22 +41,22 @@ app.use('/', frontendRoutes);
 // DANGER: 'index: false' is absolutely critical here! 
 // Without it, Express might accidentally cache our root index.html for a year, 
 // which means if we push new code, our users would never see it.
-app.use(express.static(path.join(__dirname, '../frontend/dist'), {
-  index: false, 
+app.use(express.static(path.resolve(__dirname, '../frontend/dist'), { 
+  index: false,
   maxAge: '1y', 
   etag: false
 }));
 
 // If a user types a random URL (like /blog/my-cool-post), Express won't find a file for it. 
 // This catch-all steps in, serves the React app, and lets React Router take over the steering wheel.
-app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"), {
+app.get(/^\/(.*)$/, (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"), {
     headers: {
-      // DANGER: We strictly tell Cloudflare NOT to cache index.html. 
-      // Because index.html is the "map" to our hashed Vite JS files. 
-      // If the map gets cached and we push a new update, users will get a White Screen of Death 
+      // DANGER: We strictly tell Cloudflare NOT to cache index.html.
+      // Because index.html is the "map" to our hashed Vite JS files.
+      // If the map gets cached and we push a new update, users will get a White Screen of Death
       // because the cached HTML will be looking for old Javascript files that no longer exist!
-      "Cache-Control": "no-cache", 
+      "Cache-Control": "no-cache",
     },
   });
 });
