@@ -342,9 +342,24 @@ export const CompetitorSection = ({ content }) => {
 
   const renderList = (text, type, isRankOne) => {
     if (!text) return null;
-    const listItems = text
-      .split(/(?:\d+\.\s+|[•\-*]\s+)/)
-      .filter((item) => item.trim() !== "");
+
+    let listItems = [];
+
+    if (Array.isArray(text)) {
+      listItems = text.filter(
+        (item) => typeof item === "string" && item.trim() !== "",
+      );
+    } else if (typeof text === "string") {
+      listItems = text
+        .split(/(?:\d+\.\s+|[•\-*]\s+)/)
+        .filter((item) => item.trim() !== "");
+    } else {
+      return null; // Fallback if the AI returns an object or number
+    }
+    // const listItems = text
+    //   .split(/(?:\d+\.\s+|[•\-*]\s+)/)
+    //   .filter((item) => item.trim() !== "");
+    if (listItems.length === 0) return null;
 
     return (
       <ul

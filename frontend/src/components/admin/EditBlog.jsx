@@ -15,7 +15,11 @@ export default function EditBlog({ secretKey }) {
   const [editorTab, setEditorTab] = useState("code");
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(editData.htmlContent);
+    const textToCopy = editData.content
+      ? JSON.stringify(editData.content, null, 2)
+      : editData.htmlContent;
+    
+    navigator.clipboard.writeText(textToCopy);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000); // Reverts back to "COPY" after 2 seconds
   };
@@ -209,8 +213,9 @@ export default function EditBlog({ secretKey }) {
                         : "bg-transparent text-stone-500 border-transparent hover:bg-[#2d2d2d] hover:text-stone-300"
                     }`}
                   >
-                    <Code className="w-3 h-3" /> raw_content.html
+                    <Code className="w-3 h-3" /> {editData.content ? 'raw_content.json' : 'raw_content.html'}
                   </button>
+                  {!editData.content && (
                   <button
                     onClick={() => setEditorTab("preview")}
                     className={`px-1 lg:px-4 py-2 text-[11px] font-mono flex items-center gap-2 rounded-t border-t border-x transition-colors ${
@@ -220,7 +225,8 @@ export default function EditBlog({ secretKey }) {
                     }`}
                   >
                     <Eye className="w-3 h-3" /> live_preview
-                  </button>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -257,12 +263,21 @@ export default function EditBlog({ secretKey }) {
                 <div className="absolute inset-0 pt-2">
                   <Editor
                     height="100%"
-                    defaultLanguage="html"
+                    defaultLanguage={editData.content ? "json" : "html"}
                     theme="vs-dark"
-                    value={editData.htmlContent}
-                    onChange={(value) =>
-                      setEditData({ ...editData, htmlContent: value })
-                    }
+                    value={editData.content ? JSON.stringify(editData.content, null, 2) : editData.htmlContent }
+                    onChange={(value) => {
+                                // If they edit the JSON, parsing it back into an object before saving
+                                if (editData.content) {
+                                  try {
+                                    setEditData({ ...editData, content: JSON.parse(value) });
+                                  } catch (e) {
+                                    console.log("Invalid JSON, not updating state", e);
+                                  }
+                                } else {
+                                  setEditData({ ...editData, htmlContent: value });
+                                }
+                              }}
                     options={{
                       minimap: { enabled: false },
                       wordWrap: "on",

@@ -423,45 +423,132 @@ export async function generateSEOContentPipeline(adjective, category, geography)
 }
 
 async function callGemini(prompt, schema) {
-  let maxRetries = 3;
-  for (let i = 0; i < maxRetries; i++) {
-    let finishReason = "UNKNOWN";
-    try {
-      const response = await genAI.models.generateContent({
-        model: "gemini-2.5-flash",
-        // model: "gemini-3.1-flash-live-preview",
-        // models/gemini-3.1-flash-lite-preview
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: schema,
-          maxOutputTokens: 8192,
-          temperature: 0.7,
-        },
-      });
+  // cascade hierarchy . 
+  const modelsToTry = [
+    { provider: "pollinations", name: "gemini-fast" },                 // Primary, name can be changed to gemini-search later upon error 
+    { provider: "google",       name: "gemini-3.1-flash-lite-preview" }, // Fallback 1
+    { provider: "google",       name: "gemini-2.5-flash" }             // Final Fallback
+  ];
 
-      finishReason = response.candidates?.[0]?.finishReason;
+  let lastError;
+  const MAX_ATTEMPTS_PER_MODEL = 2;
 
-      let rawText = response.text.replace(/```json/gi, "").replace(/```/g, "").trim();
-      return JSON.parse(rawText);
-    } catch (error) {
-      if (error.status === 503 || (error.message && error.message.includes("503"))) {
-        const waitTime = (i + 1) * 5000;
-        console.warn(`[Gemini API 503] Retrying in ${waitTime}ms...`);
-        console.log(error.message);
-        await new Promise(res => setTimeout(res, waitTime));
-        continue;
-      }
-      if (error instanceof SyntaxError) {
-        if (finishReason === 'MAX_TOKENS') {
-          console.error("CRITICAL [LIMIT]: The AI generated too much text and hit the 8,192 token ceiling!");
+  for (const currentModel of modelsToTry) {
+    // INNER LOOP: Try each model up to 2 times
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_MODEL; attempt++) {
+      console.log(`[AI Queue] Attempting generation with ${currentModel.provider} -> ${currentModel.name} (Attempt ${attempt}/${MAX_ATTEMPTS_PER_MODEL})...`);
+      let finishReason = "UNKNOWN";
+
+      try {
+        let rawText = "";
+
+        if (currentModel.provider === "pollinations") {
+          // --- POLLINATIONS AI LOGIC ---
+          const res = await fetch(
+            "https://gen.pollinations.ai/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.POLLINATION_API_JADU}`,
+              },
+              body: JSON.stringify({
+                model: currentModel.name,
+                messages: [
+                  {
+                    role: "system",
+                    content: `You are an expert SEO JSON generator. You MUST return ONLY valid JSON matching this exact schema. 
+                              CRITICAL ANTI-LAZINESS RULES:
+                              1. You MUST NOT skip any fields, objects, or arrays. 
+                              2. You MUST generate exactly 7 complete competitor objects inside the 'comparisons' array.
+                              3. You MUST generate detailed 'answer' strings for every single FAQ.
+                              4. You MUST generate 'benefitDetail' strings for every benefit.
+                              5. Every paragraph in the narrative sections (introduction, industryTrends, theCostOfInaction, whyChooseUs, localSeoGuide) MUST be 100-120 words long. Do not summarize or rush. Give specific, real-world examples relevant to user prompt.
+                              6. No backticks, no markdown. Fill out the entire schema completely.
+
+                              SCHEMA:
+                              ${JSON.stringify(schema)}`,
+                  },
+                  {
+                    role: "user",
+                    content: prompt,
+                  },
+                ],
+                temperature: 0.7,
+                response_format: { type: "json_object" },
+              }),
+            },
+          );
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(
+              `Pollinations HTTP ${res.status}: ${errData.error?.message || JSON.stringify(errData)}`,
+            );
+          }
+          // rawText = await res.text();
+          // finishReason = "STOP"; 
+          const data = await res.json();
+          rawText = data.choices[0].message.content;
+          finishReason = data.choices[0].finish_reason || "STOP";
+          
+        } else if (currentModel.provider === "google") {
+          // GOOGLE AI STUDIO LOGIC 
+          const response = await genAI.models.generateContent({
+            model: currentModel.name,
+            contents: prompt,
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: schema,
+              maxOutputTokens: 8192,
+              temperature: 0.7,
+            },
+          });
+
+          finishReason = response.candidates?.[0]?.finishReason;
+          rawText = response.text;
+        }
+
+        // markdown code clean up just in case
+        rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+        
+        const parsedData = JSON.parse(rawText);
+        console.log(`[AI Queue] Success with ${currentModel.name} on attempt ${attempt}!`);
+        
+        // A successful parse means we exit the function entirely and return the data
+        return parsedData;
+
+      } catch (error) {
+        lastError = error;
+        console.warn(`[AI Queue] Failed with ${currentModel.name} (Attempt ${attempt}). Reason: ${error.message}`);
+
+        // Handling JSON parsing errors specifically
+        if (error instanceof SyntaxError) {
+          if (finishReason === 'MAX_TOKENS') {
+            console.error("CRITICAL [LIMIT]: The AI generated too much text and hit the 8,192 token ceiling!");
+          } else {
+            console.error(`CRITICAL [TYPO]: The AI wrote bad JSON! (Finish Reason: ${finishReason})`);
+          }
+        }
+
+        // Logic to determine what to do next based on the attempt number
+        if (attempt < MAX_ATTEMPTS_PER_MODEL) {
+          console.log(`[AI Queue] Retrying ${currentModel.name} right now...`);
+          // delay to avoid rate-limiting spikes
+          await new Promise(res => setTimeout(res, 2000)); 
         } else {
-          console.error(`CRITICAL [TYPO]: The AI wrote bad JSON! It did NOT hit the token limit. (Finish Reason: ${finishReason})`);
+          // We've exhausted all attempts for THIS model.
+          if (currentModel !== modelsToTry[modelsToTry.length - 1]) {
+            console.log(`[AI Queue] Exhausted retries for ${currentModel.name}. Falling back to next model...`);
+          }
         }
       }
-      if (i === maxRetries - 1) throw error;
     }
   }
+
+  // If the outer loop finishes without returning, all 3 models failed both of their attempts.
+  console.error("[AI Queue] ALL MODELS EXHAUSTED AND FAILED.");
+  throw lastError;
 }
 
 async function generateJSONContent(keyword, category, geography) {
@@ -473,7 +560,7 @@ async function generateJSONContent(keyword, category, geography) {
   
   1. **BRAND MENTIONS & LINKS:** Maintain a conversational, energetic tone. naturally position Websites.co.in as the smartest choice for local businesses don't explicitly promote it. You may mention "Websites.co.in" A MAXIMUM OF 3 TIMES across the entire JSON output (ideally in the 'whyChooseUs' or 'competitorComparison' sections). DO NOT aggressively bash competitors. 
   
-  2. **EXTREME ANTI-LAZINESS RULE:** You must write deeply detailed content. Every paragraph in the narrative sections (introduction, industryTrends, theCostOfInaction, whyChooseUs, localSeoGuide) MUST be 100-120 words long. Do not summarize or rush. Give specific, real-world examples relevant to ${category}s in ${geography}.
+  2. **EXTREME ANTI-LAZINESS RULE:** You must write deeply detailed content. Every paragraph in the narrative sections (introduction, industryTrends, theCostOfInaction, whyChooseUs, localSeoGuide) MUST be 100-120 words long.You MUST generate exactly 7 complete competitor objects inside the 'comparisons' array. You MUST generate 'benefitDetail' strings for every benefit. You MUST generate detailed 'answer' strings for every single FAQ. You MUST NOT skip any fields, objects, or arrays. Do not summarize or rush. Give specific, real-world examples relevant to ${category}s in ${geography}.
   
   3. **SNAPPY, HUMAN TONE & "ANTI-AI" VOICE:** Write like a modern tech blogger (think HubSpot or Intercom). Be punchy, conversational, energetic, consultative, and authoritative. 
     • Speak directly to the reader using "you" and "your". 
