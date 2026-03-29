@@ -34,6 +34,32 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    document.title = "Website Studio | Best Website Builder Reviews & Guides";
+
+    // function to update or create meta tags
+    const setMetaTag = (attr, value, content) => {
+      let element = document.querySelector(`meta[${attr}="${value}"]`);
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute(attr, value);
+        document.head.appendChild(element);
+      }
+      element.setAttribute("content", content);
+    };
+
+    const blogDescription = "Discover the best website builder platforms for your local business. Read our expert blog reviews, comparisons, and guides at Website Studio.";
+
+    // Standard Description
+    setMetaTag("name", "description", blogDescription);
+
+    // OpenGraph / Social Media Tags
+    setMetaTag("property", "og:title", "Website Studio | Best Website Builder Reviews");
+    setMetaTag("property", "og:description", blogDescription);
+    setMetaTag("property", "og:type", "website");
+    
+  }, []);
+
+  useEffect(() => {
     const fetchBlogs = async () => {
       setLoading(true);
       api.get(`/blogs?page=${currentPage}&limit=${itemsPerPage}&status=published`)
@@ -82,30 +108,49 @@ export default function HomePage() {
     return pages;
   };
 
+  const Navbar = () => (
+    <nav className="fixed top-0 w-full z-50 bg-[#f7f9fb]/90 backdrop-blur-xl transition-all duration-300 border-b border-slate-200/50">
+      <div className="flex justify-between items-center px-3 md:px-12 py-4 max-w-7xl mx-auto">
+        <Link to="/" className="text-2xl font-black text-[#5c218b] tracking-tighter flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#5c218b] rounded-lg flex items-center justify-center">
+            <img src="/InstaWeb-Labs-icon.svg" className="w-5 h-5 invert brightness-0" alt="Logo" />
+          </div>
+          Website Studio
+        </Link>
+        <div className="flex items-center gap-4">
+          <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-br from-[#5c218b] to-[#753ca5] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 active:scale-95 transition-all">
+            Start Building
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+
   return (
-    <div className="bg-white text-slate-900 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-blue-600/20 selection:text-blue-700">
+    <div className="bg-[#f7f9fb]/90 text-slate-900 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-blue-600/20 selection:text-blue-700">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-12">
+      <header className="fixed top-0 z-50 w-full bg-[#f7f9fb]/90 backdrop-blur-xl transition-all duration-300 border-b border-slate-200/50">
+        <div className="mx-auto flex h-16 max-w-7xl py-4 items-center justify-between px-3 sm:px-6 lg:px-12">
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center bg-blue-600 text-white rounded-lg shadow-sm">
+            <Link
+              to="/"
+              className="text-2xl font-black  tracking-tighter flex items-center gap-2"
+            >
+              <div className="flex h-8 w-8 items-center justify-center bg-gradient-to-br from-[#3027e0] to-[#1f23e4] text-white rounded-lg shadow-sm">
                 <img
                   src="/InstaWeb-Labs-icon.svg"
                   className="w-5 h-5 invert brightness-0"
                   alt="Logo"
                 />
               </div>
-              <span className="text-xl font-black tracking-tight">
-                Website Studio
-              </span>
+              Website Studio
             </Link>
           </div>
           <a
             href="https://websites.co.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition inline-block shadow-md"
+            className="bg-gradient-to-br from-[#3027e0] to-[#1f23e4] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 active:scale-95 transition-all"
           >
             Start Building
           </a>
@@ -113,7 +158,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-7xl px-6 lg:px-12 pt-16 pb-10 grow w-full">
+      <main className="mx-auto max-w-7xl px-6 lg:px-12 pt-24 md:pt-32 pb-10 grow w-full">
         {/* Hero Section */}
         <section className="mb-20 max-w-3xl ">
           <h1
@@ -170,12 +215,12 @@ export default function HomePage() {
                     </div>
 
                     {/* Typography */}
-                    <h3
+                    <h2
                       className="text-2xl font-semibold leading-snug text-slate-900 mb-3 group-hover:text-blue-600 transition-colors"
                       style={{ fontFamily: "'Newsreader', serif" }}
                     >
                       {post.h1}
-                    </h3>
+                    </h2>
                     <p className="text-[16px] text-slate-600 leading-relaxed line-clamp-2 mb-6 grow">
                       {post.metaDescription}
                     </p>
@@ -219,7 +264,7 @@ export default function HomePage() {
                       number === "..." ? (
                         <span
                           key={`ellipsis-${index}`}
-                          className="flex size-8 items-end justify-center text-slate-400 text-lg font-bold tracking-widest pb-2"
+                          className="flex size-8 items-end justify-center text-slate-500 text-lg font-bold tracking-widest pb-2"
                         >
                           ...
                         </span>
@@ -271,9 +316,9 @@ export default function HomePage() {
         {/* Empty State */}
         {!loading && posts.length === 0 && (
           <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200 mt-10">
-            <h3 className="text-xl font-bold text-slate-700 mb-2">
+            <h2 className="text-xl font-bold text-slate-700 mb-2">
               No guides published yet
-            </h3>
+            </h2>
             <p className="text-slate-500 mb-6">
               Head over to the admin dashboard to generate your first SEO page.
             </p>
@@ -301,7 +346,7 @@ export default function HomePage() {
                   />
                 </div>
                 <span className="text-lg font-extrabold tracking-tight text-slate-900">
-                  Website Studio 
+                  Website Studio
                 </span>
               </div>
               <p className="text-slate-500 max-w-sm text-[15px] leading-relaxed">
@@ -363,19 +408,19 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-5 border-t border-slate-200">
-            <p className="text-xs font-medium text-slate-400">
+            <p className="text-xs font-medium text-slate-500">
               © {new Date().getFullYear()} Website Studio | Smart Website
               Builder for Local Businesses
             </p>
             <div className="flex gap-6">
               <a
-                className="text-xs font-medium text-slate-400 hover:text-slate-900"
+                className="text-xs font-medium text-slate-500 hover:text-slate-900"
                 href="#"
               >
                 Privacy Policy
               </a>
               <a
-                className="text-xs font-medium text-slate-400 hover:text-slate-900"
+                className="text-xs font-medium text-slate-500 hover:text-slate-900"
                 href="#"
               >
                 Terms of Service

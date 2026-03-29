@@ -109,12 +109,16 @@ function getTopHalfSchema(category, geography) {
       hero: {
         type: Type.OBJECT,
         properties: {
-          h1: { type: Type.STRING },
+          h1: {
+            type: Type.STRING,
+            description: `A compelling headline (H1) for the blog post that includes the ${category} and ${geography} and entices clicks.`,
+          },
           paragraphs: {
             type: Type.STRING,
             description: "A highly persuasive 35-40 words paragraph.",
           },
         },
+        required: ["h1", "paragraphs"],
       },
       introduction: {
         type: Type.OBJECT,
@@ -129,6 +133,7 @@ function getTopHalfSchema(category, geography) {
             description: `Generate exactly 3 massive paragraphs (80-85 words each) exploring the local market context for ${category}s in ${geography}.`,
           },
         },
+        required: ["heading", "paragraphs"],
       },
       industryTrends: {
         type: Type.OBJECT,
@@ -144,6 +149,7 @@ function getTopHalfSchema(category, geography) {
               "Generate exactly 2 massive paragraphs (80-85 words each) detailing why digital transformation is mandatory.",
           },
         },
+        required: ["heading", "paragraphs"],
       },
       theCostOfInaction: {
         type: Type.OBJECT,
@@ -159,6 +165,7 @@ function getTopHalfSchema(category, geography) {
               "Generate exactly 2 massive paragraphs (80-85 words each) quantifying lost revenue and common digital mistakes.",
           },
         },
+        required: ["heading", "paragraphs"],
       },
       features: {
         type: Type.OBJECT,
@@ -183,6 +190,7 @@ function getTopHalfSchema(category, geography) {
             },
           },
         },
+        required: ["heading", "list"],
       },
       caseStudies: {
         type: Type.OBJECT,
@@ -226,8 +234,10 @@ function getTopHalfSchema(category, geography) {
                 },
               },
             },
+            required: ["businessProfile", "mobileSummary", "tabletSummary", "theProblem", "theSolution", "theResult"],
           },
         },
+        required: ["heading", "studies"],
       },
     },
     required: ["metaTitle", "metaDescription", "hero", "introduction", "industryTrends", "theCostOfInaction", "features", "caseStudies"],

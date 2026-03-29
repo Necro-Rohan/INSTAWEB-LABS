@@ -4,6 +4,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import helmet from 'helmet';
 import "./src/jobs/worker.js"; // remember to comment this out if you run it on local host with command npm run dev as we have configured this command to start both server and worker together using concurrently. 
 
 dotenv.config();
@@ -19,6 +20,13 @@ const __dirname = dirname(__filename);
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+app.use(
+  helmet({
+    // disabling the strict CSP for now so it doesn't accidentally block your Cloudinary/Unsplash images
+    contentSecurityPolicy: false,
+  }),
+);
 
 connectDb();
 

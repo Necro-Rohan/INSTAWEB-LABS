@@ -64,21 +64,6 @@ export const Footer = () => (
   </footer>
 );
 
-// export const FinalCta = ({ post }) => (
-//   <section className="py-18 md:py-24 px-6 max-w-7xl mx-auto mb-20">
-//     <div className="bg-gradient-to-br from-[#5c218b] via-[#753ca5] to-[#9900ab] rounded-3xl p-12 lg:p-24 text-center text-white relative overflow-hidden shadow-2xl">
-//       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent)] pointer-events-none"></div>
-//       <h2 className="text-4xl lg:text-6xl font-black mb-8 tracking-tighter max-w-4xl mx-auto leading-tight">Ready to Build Your Digital Atelier?</h2>
-//       <p className="text-xl text-[#e5c1ff] mb-12 max-w-2xl mx-auto font-medium">Join the elite network of {post.geography} {post.category.toLowerCase()}s defining the future in the digital age.</p>
-//       <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
-//         <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" className="bg-white text-[#5c218b] px-10 py-4 rounded-full font-black text-lg hover:bg-slate-50 transition-colors shadow-xl">
-//           Start Your Free Trial
-//         </a>
-//       </div>
-//     </div>
-//   </section>
-// );
-
 export const FinalCta = ({ post }) => (
   <section className="px-6 max-w-5xl mx-auto mb-24">
     <div className="relative bg-[#191c1e] rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between overflow-hidden shadow-2xl border border-stone-800">
@@ -151,7 +136,7 @@ export const HeroSection = ({ content, post, image }) => (
               <div className="absolute -inset-4 bg-[#5c218b]/10 rounded-3xl blur-2xl group-hover:bg-[#5c218b]/20 transition-colors duration-500"></div>
               {/* ADDED OVERFLOW HIDDEN AND BADGE */}
               <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-                <img src={getImgUrl(image)} alt="Hero" className="w-full aspect-5/5 object-cover" loading="eager" fetchpriority="high"/>
+                <img src={getImgUrl(image)} alt="Hero" className="w-full aspect-5/5 object-cover" loading="eager" fetchPriority="high"/>
                 <UnsplashBadge img={image} />
               </div>
             </div>
