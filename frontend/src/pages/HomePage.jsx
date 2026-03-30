@@ -416,10 +416,23 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-5 border-t border-slate-200">
-            <p className="text-xs font-medium text-slate-500">
-              © {new Date().getFullYear()} Website Studio | Smart Website
-              Builder for Local Businesses
-            </p>
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs font-medium text-slate-500">
+                © {new Date().getFullYear()} Website Studio | Smart Website
+                Builder for Local Businesses
+              </p>
+              <p className="text-[11px] font-medium text-slate-400">
+                Built with{" "}
+                <a
+                  href="https://pollinations.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-slate-600 underline transition-colors"
+                >
+                  pollinations.ai
+                </a>
+              </p>
+            </div>
             <div className="flex gap-6">
               <a
                 className="text-xs font-medium text-slate-500 hover:text-slate-900"
