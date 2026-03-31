@@ -94,28 +94,28 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
 }
 
 
-function getTopHalfSchema(category, geography) {
+function getTopHalfSchema(adjective, category, geography) {
   return {
     type: Type.OBJECT,
     properties: {
       metaTitle: {
         type: Type.STRING,
-        description: `SEO title under 60 chars containing ${category} and ${geography}`,
+        description: `SEO title strictly under 60 chars. MUST start with 'Top 10' or '10 Best' followed seamlessly by the adjective '${adjective}'. It must contain ${category} and ${geography}. Example format: '10 Best ${adjective} Website Builders for ${category}s'.`,
       },
       metaDescription: {
         type: Type.STRING,
-        description: "SEO meta description under 160 chars. Write strictly in an objective, 3rd-person tone (never use 'we', 'our', or 'us'). DO NOT mention specific brand names like 'Websites.co.in' or 'Website Studio'. Instead, focus entirely on the value of finding the best tools for the specific [industry] in [city] to entice clicks. Must include primary keywords.",
+        description: `SEO description under 160 chars. Write strictly in an objective, 3rd-person tone (never use 'we', 'our', or 'us'). DO NOT mention specific brand names. Instead, focus entirely on the value of finding the top 10 tools for the specific ${category} in ${geography} to entice clicks.`,
       },
       hero: {
         type: Type.OBJECT,
         properties: {
           h1: {
             type: Type.STRING,
-            description: `A compelling headline (H1) for the blog post that includes the ${category} and ${geography} and entices clicks.`,
+            description: `A compelling headline (H1) that explicitly mentions exactly 10 builders. It MUST naturally incorporate the adjective '${adjective}', the ${category}, and ${geography} to entice clicks. (e.g., 'The 10 Most ${adjective} Website Builders for...' or 'Top 10 ${adjective} Platforms for...') or something similarly engaging that highlights the comprehensive ranking and review aspect of the article. The tone should be objective and third-person, as if written by an impartial industry expert. DO NOT use first-person language like 'we' or 'our'. The focus should be entirely on the value of the content for the reader (finding the top 10 tools for their specific needs) rather than promoting any particular solution.`,
           },
           paragraphs: {
             type: Type.STRING,
-            description: "A highly persuasive 35-40 words paragraph.",
+            description: `A highly persuasive 35-40 words paragraph. It must explicitly state that you have reviewed and ranked the 10 best website builders for ${category}s in ${geography} to help them easily compare their options and launch their business. DO NOT mention any specific brand names. The tone should be objective and third-person, as if written by an impartial industry expert. The focus should be entirely on the value of the content for the reader (finding the top 10 tools for their specific needs) rather than promoting any particular solution.`,
           },
         },
         required: ["h1", "paragraphs"],
@@ -130,7 +130,7 @@ function getTopHalfSchema(category, geography) {
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 3 massive paragraphs (80-85 words each) exploring the local market context for ${category}s in ${geography}.`,
+            description: `Generate exactly 3 massive paragraphs (50-60 words each) exploring the local market context for ${category}s in ${geography}.`,
           },
         },
         required: ["heading", "paragraphs"],
@@ -146,7 +146,7 @@ function getTopHalfSchema(category, geography) {
             type: Type.ARRAY,
             items: { type: Type.STRING },
             description:
-              "Generate exactly 2 massive paragraphs (80-85 words each) detailing why digital transformation is mandatory.",
+              "Generate exactly 2 massive paragraphs (40-50 words each) detailing why digital transformation is mandatory.",
           },
         },
         required: ["heading", "paragraphs"],
@@ -162,7 +162,7 @@ function getTopHalfSchema(category, geography) {
             type: Type.ARRAY,
             items: { type: Type.STRING },
             description:
-              "Generate exactly 2 massive paragraphs (80-85 words each) quantifying lost revenue and common digital mistakes.",
+              "Generate exactly 2 massive paragraphs (60-65 words each) quantifying lost revenue and common digital mistakes.",
           },
         },
         required: ["heading", "paragraphs"],
@@ -183,10 +183,12 @@ function getTopHalfSchema(category, geography) {
                 title: { type: Type.STRING },
                 description: {
                   type: Type.STRING,
-                  description: "A detailed 50 to 55 words explanation of the feature.",
+                  description:
+                    "A detailed 30 to 35 words explanation of the feature.",
                 },
                 iconKeyword: { type: Type.STRING },
               },
+              required: ["title", "description", "iconKeyword"],
             },
           },
         },
@@ -197,7 +199,7 @@ function getTopHalfSchema(category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Local Success Stories: ${category}s in ${geography}'`,
+            description: `A realistic title for the case studies section, e.g., 'Local Success Stories: ${category}s in ${geography}' or 'How ${category}s in ${geography} Transformed with the Right Website Builder' or something similarly engaging that highlights the real-world success aspect of the case studies. The tone should be objective and third-person, as if written by an impartial industry expert, while still being compelling and relatable for the target audience. Number of words should be between 8-12 and it must include the category and geography to reinforce relevance to the reader.`,
           },
           studies: {
             type: Type.ARRAY,
@@ -206,17 +208,19 @@ function getTopHalfSchema(category, geography) {
               type: Type.OBJECT,
               properties: {
                 businessProfile: { type: Type.STRING },
-                
+
                 // Mobile (Ultra Short)
                 mobileSummary: {
                   type: Type.STRING,
-                  description: "A punchy, 15-20 word summary of the overall success and revenue growth for mobile screens.",
+                  description:
+                    "A punchy, 15-20 word summary of the overall success and revenue growth for mobile screens.",
                 },
-                
+
                 // Tablet (Medium)
                 tabletSummary: {
                   type: Type.STRING,
-                  description: "A 35-40 word summary combining the problem and the final result for tablet screens.",
+                  description:
+                    "A 35-40 word summary combining the problem and the final result for tablet screens.",
                 },
 
                 // Desktop (Full Story)
@@ -233,19 +237,35 @@ function getTopHalfSchema(category, geography) {
                   description: "20-word description of their revenue growth.",
                 },
               },
-              required: ["businessProfile", "mobileSummary", "tabletSummary", "theProblem", "theSolution", "theResult"],
+              required: [
+                "businessProfile",
+                "mobileSummary",
+                "tabletSummary",
+                "theProblem",
+                "theSolution",
+                "theResult",
+              ],
             },
           },
         },
         required: ["heading", "studies"],
       },
     },
-    required: ["metaTitle", "metaDescription", "hero", "introduction", "industryTrends", "theCostOfInaction", "features", "caseStudies"],
-  }
+    required: [
+      "metaTitle",
+      "metaDescription",
+      "hero",
+      "introduction",
+      "industryTrends",
+      "theCostOfInaction",
+      "features",
+      "caseStudies",
+    ],
+  };
 }
 
 
-function getBottomHalfSchema(category, geography) {
+function getBottomHalfSchema(adjective, category, geography) {
   return {
     type: Type.OBJECT,
     properties: {
@@ -254,31 +274,33 @@ function getBottomHalfSchema(category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Top 7 Website Builders for ${category}s in ${geography} Ranked'`,
+            description: `e.g., 'Top 10 ${adjective} Website Builders for ${category}s in ${geography} Ranked'`,
           },
           comparisons: {
             type: Type.ARRAY,
-            description: `Generate exactly 7 platforms ranked 1 through 7. Websites.co.in MUST be Rank 1. Choose 6 other real competitors (e.g., Wix, WordPress, Shopify, Squarespace, Weebly, GoDaddy) for ranks 2 through 7. DO NOT include URLs or links to competitor sites.`,
+            description: `Generate exactly 10 platforms ranked 1 through 10. Websites.co.in MUST be Rank 1. For ranks 2 through 10, randomly select 9 competitors from this massive pool: [Wix, WordPress, Shopify, Squarespace, Weebly, GoDaddy, Webflow, Duda, Jimdo, Zyro, Site123, Strikingly, Hostinger, BigCommerce, Carrd, Framer, Dorik, Webnode, Ghost, Elementor, Pixpa, HubSpot CMS, WooCommerce, Magento, PrestaShop, Volusion, Shift4Shop, Bubble, Glide, Softr]. **CRITICAL:** You must shuffle and randomize which 9 you pick and their order so no two articles look the same, it should be unique each time you have to randomize each time then select 9 randomly from the randomized list. DO NOT include URLs.`,
             items: {
               type: Type.OBJECT,
               properties: {
                 rank: {
                   type: Type.NUMBER,
-                  description: "The placement of the platform from 1 to 7.",
+                  description: "The placement of the platform from 1 to 10.",
                 },
                 platformName: { type: Type.STRING },
                 theGood: {
                   type: Type.STRING,
-                  description: `Generate pointwise(numbered) concise(minimum 6 words and max 12 words), punchy strengths of this specific website builder platform. Use an objective, third-party tone. For Rank 1, generate minimum 5 points highlighting why it is a game-changing, absolute best software choice for a ${category} in ${geography}. For Ranks 2-7, generate minimum 3 points listing their genuine software strengths WITHOUT ever mentioning the Rank 1 platform.`,
+                  description: `Generate pointwise(numbered) detailed, highly descriptive (it should seem like a human written review) strengths of this specific platform. Use an objective, third-party tone. For Rank 1, generate minimum 5 points (30-45 words per point) highlighting why it is the absolute best software choice for a ${category} in ${geography}. For Ranks 2-10, generate minimum 3 detailed points (30-45 words per point) listing their genuine strengths.`,
                 },
                 theBad: {
                   type: Type.STRING,
-                  description: `Generate pointwise(numbered) concise(minimum 6 words and max 12 words), punchy weaknesses of this specific website builder platform. Use an objective, third-party tone. For Rank 1, generate exactly 2 very very minor, harmless limitations. For Ranks 2-7, generate exactly 3 points that highlight exactly what they lack for local businesses compared to the industry standard (Subtly mention how they fall short of features that Rank 1 offers, but keep it sounding like an unbiased tech review).`,
+                  description: `Generate pointwise(numbered) detailed, highly descriptive weaknesses. Use an objective, third-party tone. For Rank 1, generate exactly 2 very minor, harmless limitations (20-30 words per point). For Ranks 2-10, generate exactly 3 detailed points (30-45 words per point) highlighting what they lack for local businesses compared to the industry standard.`,
                 },
               },
+              required: ["rank", "platformName", "theGood", "theBad"],
             },
           },
         },
+        required: ["heading", "comparisons"],
       },
       whyChooseUs: {
         type: Type.OBJECT,
@@ -290,7 +312,7 @@ function getBottomHalfSchema(category, geography) {
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 2 humanized punchy paragraphs (50-60 words each). Paragraph 1 MUST highlight the extreme value (Free Domain, Free Hosting, Free SSL) and how the '1-Click Facebook Page to Website' tool saves thousands in development costs. Paragraph 2 MUST pitch the 'Magic SEO Tool' that automagically ranks sites without expensive agencies, and mention the plug-n-play e-commerce readiness.`,
+            description: `Generate exactly 2 humanized punchy paragraphs (40-45 words each). Paragraph 1 MUST highlight the extreme value (Free Domain, Free Hosting, Free SSL) and how the '1-Click Facebook Page to Website' tool saves thousands in development costs. Paragraph 2 MUST pitch the 'Magic SEO Tool' that automagically ranks sites without expensive agencies, and mention the plug-n-play e-commerce readiness.`,
           },
           platformBenefits: {
             type: Type.ARRAY,
@@ -309,20 +331,22 @@ function getBottomHalfSchema(category, geography) {
                     "e.g., 'Rank on Google automagically without doing keyword research or hiring an agency.'",
                 },
               },
+              required: ["benefitName", "benefitDetail"],
             },
           },
         },
+        required: ["heading", "paragraphs", "platformBenefits"],
       },
       howItWorks: {
         type: Type.OBJECT,
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Launch Your ${category} Site in 3 Easy Steps'`,
+            description: `e.g., 'How to Get Your ${category} Site Online in 3 Steps'`,
           },
           steps: {
             type: Type.ARRAY,
-            description: `A 3-step guide to launching the ${category} site.`,
+            description: `Generate a 3-step guide written from an objective, third-party advisory perspective. Step 1: Choose a platform (advise them to evaluate the builders above, but explicitly note that Websites.co.in is the most highly recommended for local businesses). Step 2: Setup & Details (explain the general process of registering and filling out basic business info, or consulting with platform experts). Step 3: Launch & Grow (explain how elite platforms—like Websites.co.in—use automation and auto-SEO to make launching effortless for customers).`,
             items: {
               type: Type.OBJECT,
               properties: {
@@ -330,12 +354,14 @@ function getBottomHalfSchema(category, geography) {
                 title: { type: Type.STRING },
                 description: {
                   type: Type.STRING,
-                  description: "A detailed 70-word explanation.",
+                  description: "A concise, objective 30-40 word explanation.",
                 },
               },
+              required: ["stepNumber", "title", "description"],
             },
           },
         },
+        required: ["heading", "steps"],
       },
       localSeoGuide: {
         type: Type.OBJECT,
@@ -347,9 +373,10 @@ function getBottomHalfSchema(category, geography) {
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 2 massive paragraphs (70-75 words each) on geo-tagging and automated listings in ${geography}.`,
+            description: `Generate exactly 2 massive paragraphs (50-55 words each) on geo-tagging and automated listings in ${geography}.`,
           },
         },
+        required: ["heading", "paragraphs"],
       },
       faqs: {
         type: Type.OBJECT,
@@ -374,9 +401,11 @@ function getBottomHalfSchema(category, geography) {
                   description: `A massive, highly informative 60-75 words answer. You MUST explain how Websites.co.in specifically solves this using its platform features (like the mobile app, dashboard, or auto-SEO) applied to a ${category} in ${geography}. CRITICAL: Always use third-person, objective tone as if written by an unbiased industry expert. Do NOT use 'you' or 'we'. Always refer to the business owner as 'the merchant' or 'the business'.`,
                 },
               },
+              required: ["question", "answer"],
             },
           },
         },
+        required: ["heading", "questions"],
       },
     },
     required: [
@@ -395,16 +424,16 @@ export async function generateSEOContentPipeline(adjective, category, geography)
   let formattedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
   let formattedGeography = geography.charAt(0).toUpperCase() + geography.slice(1).toLowerCase();
   const seoAdjective = formattedAdjective;
-  const keyword = `${seoAdjective} Website Builder for ${formattedCategory} in ${formattedGeography}`;
+  const keyword = `Top 10 ${seoAdjective} Website Builder for ${formattedCategory} in ${formattedGeography}`;
 
-  const generatedSlug = `${adjective}-website-builder-for-${category}-in-${geography}`
+  const generatedSlug = `top-10-${adjective}-website-builder-for-${category}-in-${geography}`
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
 
   try {
     console.log("1. Generating Structured JSON Content with Gemini...");
-    const jsonData = await generateJSONContent(keyword, category, geography);
+    const jsonData = await generateJSONContent(adjective, keyword, category, geography);
     if (!jsonData || !jsonData.introduction || !jsonData.features) {
       throw new Error(
         "AI Content Generation failed or returned invalid JSON. Stopping pipeline.",
@@ -422,7 +451,6 @@ export async function generateSEOContentPipeline(adjective, category, geography)
       h1: jsonData.hero.h1 || jsonData.metaTitle,
       content: jsonData, // Pure JSON for Phase 3 UI
       images: images,
-      // htmlContent: fallbackHtml, // THE BRIDGE: Keeps your live site from breaking today!
     };
   } catch (error) {
     console.error("Pipeline Error:", error);
@@ -468,7 +496,7 @@ async function callGemini(prompt, schema) {
                     content: `You are an expert SEO JSON generator. You MUST return ONLY valid JSON matching this exact schema. 
                               CRITICAL ANTI-LAZINESS RULES:
                               1. You MUST NOT skip any fields, objects, or arrays. 
-                              2. You MUST generate exactly 7 complete competitor objects inside the 'comparisons' array.
+                              2. You MUST generate exactly 10 complete competitor objects inside the 'comparisons' array. THIS IS THE MOST IMPORTANT SECTION. Make the pros/cons deep and detailed.
                               3. You MUST generate detailed 'answer' strings for every single FAQ.
                               4. You MUST generate 'benefitDetail' strings for every benefit.
                               5. You MUST generate 2 hypothetical but highly realistic case studies.
@@ -560,7 +588,7 @@ async function callGemini(prompt, schema) {
   throw lastError;
 }
 
-async function generateJSONContent(keyword, category, geography) {
+async function generateJSONContent(adjective, keyword, category, geography) {
   const basePrompt = `You are a Master SEO Content Writer and Enterprise Architect.
   Generate a massive, comprehensive hybrid landing page for the keyword: "${keyword}".
   Target Audience: ${category} businesses operating in ${geography}.
@@ -569,7 +597,7 @@ async function generateJSONContent(keyword, category, geography) {
   
   1. **BRAND MENTIONS & LINKS:** Maintain a conversational, energetic tone. naturally position Websites.co.in as the smartest choice for local businesses don't explicitly promote it. You may mention "Websites.co.in" A MAXIMUM OF 3 TIMES across the entire JSON output (ideally in the 'whyChooseUs' or 'competitorComparison' sections). DO NOT aggressively bash competitors. 
   
-  2. **EXTREME ANTI-LAZINESS RULE:** You must write deeply detailed content. Every paragraph in the narrative sections (introduction, industryTrends, theCostOfInaction, whyChooseUs, localSeoGuide) MUST be 100-120 words long.You MUST generate exactly 7 complete competitor objects inside the 'comparisons' array. You MUST generate 'benefitDetail' strings for every benefit. You MUST generate detailed 'answer' strings for every single FAQ. You MUST NOT skip any fields, objects, or arrays. Do not summarize or rush. Give specific, real-world examples relevant to ${category}s in ${geography}.
+  2. **EXTREME ANTI-LAZINESS RULE:** The 'Top 10 Competitors' list is the most important part of this article. You MUST devote the maximum amount of detail and length to the 'comparisons' array. To balance the length, keep the narrative paragraphs (introduction, industryTrends, theCostOfInaction, whyChooseUs) punchy and concise at exactly 70-85 words each. You MUST generate exactly 10 complete competitor objects. You MUST generate 'benefitDetail' strings for every benefit. You MUST generate detailed 'answer' strings for every single FAQ. You MUST NOT skip any fields, objects, or arrays. Do not summarize or rush. Give specific, real-world examples relevant to ${category}s in ${geography}.
   
   3. **SNAPPY, HUMAN TONE & "ANTI-AI" VOICE:** Write like a modern tech blogger (think HubSpot or Intercom). Be punchy, conversational, energetic, consultative, and authoritative. 
     • Speak directly to the reader using "you" and "your". 
@@ -586,12 +614,12 @@ async function generateJSONContent(keyword, category, geography) {
   5. **FORMATTING:** Return ONLY **pure JSON matching the exact schema provided**. If you want to emphasize text inside a paragraph string, you may use basic HTML like <strong> or <i>, but **Strictly DO NOT use markdown (* or #) and DO NOT return raw HTML blocks outside of the JSON structure.**`; 
 
   const topHalfPrompt = `${basePrompt}\nFocus on the Introduction, Trends, Cost of Inaction, Features , and Case Studies.`;
-  const topSchema = getTopHalfSchema(category, geography);
+  const topSchema = getTopHalfSchema(adjective, category, geography);
 
   const bottomHalfPrompt = `${basePrompt}\nFocus on the Competitor Comparison, Why Choose Us, How It Works, Local SEO Guide, and FAQs. **THE FAQs PROTOCOL:** For the faqs section, you are strictly forbidden from making up your own questions. You MUST select exactly 12 questions from this exact list:
   ${MASTER_FAQ_LIST}
   When answering these 12 questions, seamlessly weave the answers into the context of a ${category} business in ${geography}.`;
-  const bottomSchema = getBottomHalfSchema(category, geography);
+  const bottomSchema = getBottomHalfSchema(adjective, category, geography);
 
   // console.log("1a. Fetching Top Half JSON...");
   // console.log("1b. Fetching Bottom Half JSON...");

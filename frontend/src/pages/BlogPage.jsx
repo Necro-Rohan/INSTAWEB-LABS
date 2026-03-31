@@ -7,7 +7,7 @@ import {
   Navbar, Footer, HeroSection, IntroSection, TrendsSection,
   CostOfInactionSection, FeaturesSection, CaseStudiesSection,
   CompetitorSection, BenefitsSection, LocalSeoSection,
-  FaqSection, FinalCta
+  FaqSection, FinalCta, HowItWorksSection
 } from "../components/blogpage/BlogSections.jsx";
 
 export default function BlogPage() {
@@ -164,6 +164,7 @@ export default function BlogPage() {
         <CaseStudiesSection content={content.caseStudies} images={images} />
         <CompetitorSection content={content.competitorComparison} />
         <BenefitsSection content={content.whyChooseUs} image={images[2] || images[0]} />
+        <HowItWorksSection content={content.howItWorks} />
         <LocalSeoSection content={content.localSeoGuide} />
         <FaqSection content={content.faqs} />
         <FinalCta post={post} />

@@ -121,7 +121,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-[#f7f9fb]/90 text-slate-900 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-blue-600/20 selection:text-blue-700">
+    <div className="bg-[#f7f9fb]/90 text-slate-900 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-blue-600/20 selection:text-[#5c218b]">
       {/* Header */}
       <header className="fixed top-0 z-50 w-full bg-[#f7f9fb]/90 backdrop-blur-xl transition-all duration-300 border-b border-slate-200/50">
         <div className="mx-auto flex h-16 max-w-7xl py-4 items-center justify-between px-3 sm:px-6 lg:px-12">
@@ -159,11 +159,11 @@ export default function HomePage() {
             className="text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-slate-900 mb-6 italic"
             style={{ fontFamily: "'Newsreader', serif" }}
           >
-            Resource Center
+            The Growth Hub
           </h1>
           <p className="text-xl leading-relaxed text-slate-600 w-full">
-            Expert insights, editorial guides, and technical deep-dives on
-            building high-performance websites for the modern web.
+            Actionable growth strategies, expert platform reviews, and local SEO
+            playbooks to help your business dominate the digital market.
           </p>
         </section>
 
