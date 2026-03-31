@@ -1,75 +1,10 @@
 import BlogPost from "../models/BlogPost.model.js";
 import { addBlogJob } from "../jobs/queue.js";
 
-// export const BlogGenerator = async (req, res) => {
-//   const { adjective, category, geography } = req.body;
-
-//   if (!adjective || !category || !geography) {
-//     return res.status(400).json({ error: "Missing required variables" });
-//   }
-
-//   const formattedAdjective =
-//     adjective.charAt(0).toUpperCase() + adjective.slice(1).toLowerCase();
-//   const formattedCategory =
-//     category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
-//   const formattedGeography =
-//     geography.charAt(0).toUpperCase() + geography.slice(1).toLowerCase();
-//   const keyword = `${formattedAdjective} Website Builder for ${formattedCategory} in ${formattedGeography}`;
-
-//   const checkSlug = keyword
-//     .toLowerCase()
-//     .replace(/[^a-z0-9]+/g, "-")
-//     .replace(/(^-|-$)+/g, "");
-
-//   try {
-//     // Check if it already exists
-//     const existingPost = await BlogPost.findOne({ slug: checkSlug });
-//     if (existingPost) {
-//       return res.status(409).json({
-//         error: "Post for this combination already exists.",
-//         slug: checkSlug,
-//       });
-//     }
-
-//     await BlogPost.create({
-//       slug: checkSlug,
-//       h1: `Generating SEO Page...`,
-//       category: formattedCategory,
-//       geography: formattedGeography,
-//       adjective: formattedAdjective,
-//       status: "generating",
-//     });
-
-//     console.log(
-//       `Adding multi-model SEO pipeline job to queue for: ${checkSlug}...`,
-//     );
-
-//     // Tossing the data into the Redis Queue!
-//     const job = await addBlogJob(
-//       {
-//         keyword, // Passing the full keyword to make the worker's life easier
-//         adjective: formattedAdjective,
-//         category: formattedCategory,
-//         geography: formattedGeography,
-//       },
-//       checkSlug,
-//     );
-
-//     // IMMEDIATELY sending a response back. No more waiting for the AI to do its thing!
-//     return res.status(202).json({
-//       message: "Blog generation started in the background!",
-//       jobId: job.id,
-//     });
-//   } catch (error) {
-//     console.error("Generator Queue Error:", error);
-//     res.status(500).json({ error: "Failed to add job to queue" });
-//   }
-// };
 
 export const BlogGenerator = async (req, res) => {
-  const { blogs } = req.body; // Expecting an array of blogs now
+  const { blogs } = req.body; 
 
-  // 1. HARD VALIDATION: The 100-Item Limit
   if (!Array.isArray(blogs) || blogs.length === 0) {
     return res.status(400).json({ error: "Please provide an array of blogs to generate." });
   }
@@ -82,10 +17,9 @@ export const BlogGenerator = async (req, res) => {
     skipped: []
   };
 
-  // Create a unique batch ID to group these requests together
+  //  unique batch ID to group these requests together
   const batchId = `batch_${Date.now()}`;
 
-  // 2. SEQUENTIAL PROCESSING: The "for...of" loop prevents the MongoDB Thundering Herd
   for (const item of blogs) {
     const { adjective, category, geography } = item;
 
@@ -105,14 +39,13 @@ export const BlogGenerator = async (req, res) => {
       .replace(/(^-|-$)+/g, "");
 
     try {
-      // 3. DUPLICATE CHECK
+      // DUPLICATE CHECK
       const existingPost = await BlogPost.findOne({ slug: checkSlug });
       if (existingPost) {
         results.skipped.push({ slug: checkSlug, reason: "Duplicate slug already exists" });
-        continue; // Skip to the next blog!
+        continue; 
       }
 
-      // 4. CREATE PLACEHOLDER (Note the "queued" status and batchId)
       await BlogPost.create({
         slug: checkSlug,
         h1: `Generating SEO Page...`,
@@ -125,7 +58,6 @@ export const BlogGenerator = async (req, res) => {
 
       console.log(`Adding job to queue for: ${checkSlug}...`);
 
-      // 5. ADD TO REDIS QUEUE
       await addBlogJob(
         {
           keyword,
@@ -143,7 +75,6 @@ export const BlogGenerator = async (req, res) => {
     }
   }
 
-  // 6. PARTIAL SUCCESS RESPONSE
   return res.status(202).json({
     message: "Bulk processing completed.",
     summary: {

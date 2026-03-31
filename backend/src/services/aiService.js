@@ -104,7 +104,7 @@ function getTopHalfSchema(category, geography) {
       },
       metaDescription: {
         type: Type.STRING,
-        description: "SEO description under 160 chars",
+        description: "SEO meta description under 160 chars. Write strictly in an objective, 3rd-person tone (never use 'we', 'our', or 'us'). DO NOT mention specific brand names like 'Websites.co.in' or 'Website Studio'. Instead, focus entirely on the value of finding the best tools for the specific [industry] in [city] to entice clicks. Must include primary keywords.",
       },
       hero: {
         type: Type.OBJECT,

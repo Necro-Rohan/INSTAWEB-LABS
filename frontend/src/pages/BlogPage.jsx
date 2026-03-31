@@ -113,7 +113,7 @@ export default function BlogPage() {
           {/* Legacy HTML Content */}
           <div className="flex justify-center">
             <article
-              className="prose prose-base sm:prose-lg sm:prose-xl prose-slate max-w-full mx-auto break-words
+              className="prose prose-base sm:prose-lg sm:prose-xl prose-slate max-w-full mx-auto wrap-break-words
               prose-headings:text-slate-900 prose-headings:font-black prose-headings:leading-tight prose-headings:tracking-tight
               prose-p:leading-relaxed prose-p:text-slate-700
               prose-a:text-white prose-a:no-underline prose-a:font-semibold prose-a:px-1.5 prose-a:py-2 prose-a:rounded-lg transition

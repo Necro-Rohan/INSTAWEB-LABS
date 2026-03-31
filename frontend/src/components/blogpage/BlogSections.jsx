@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   CheckCircle2, TrendingUp, AlertTriangle, Star, 
   Target, Shield, ChevronDown, Calendar, Image as ImageIcon, 
@@ -42,7 +42,7 @@ export const Navbar = () => (
         Website Studio
       </Link>
       <div className="flex items-center gap-4">
-        <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-br from-[#5c218b] to-[#753ca5] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 active:scale-95 transition-all">
+        <a href="https://websites.co.in" target="_blank" rel="noopener noreferrer" className="bg-linear-to-br from-[#5c218b] to-[#753ca5] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 active:scale-95 transition-all">
           Start Building
         </a>
       </div>
@@ -50,19 +50,201 @@ export const Navbar = () => (
   </nav>
 );
 
-export const Footer = () => (
-  <footer className="bg-[#eceef0]">
-    <div className="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto py-12 px-8">
-      <div className="font-black tracking-tight text-[#191c1e] flex items-center gap-2">
-        <div className="w-6 h-6 bg-[#191c1e] rounded flex items-center justify-center">
-          <img src="/InstaWeb-Labs-icon.svg" className="w-3 h-3 invert brightness-0" alt="Logo" />
+export const Footer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const handleBlogClick = (e) => {
+    if (location.pathname === "/") {
+      // for home page
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // If on Blog: Intercept the click!
+      e.preventDefault();
+
+      // for blog page
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      setTimeout(() => {
+        navigate("/");
+        window.scrollTo(0, 0);
+      }, 500);
+    }
+  };
+  return (
+    <footer className="border-t border-slate-100 bg-slate-50/50 py-12 mt-auto">
+      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
+          <div className="col-span-2 md:col-span-3 lg:col-span-2 mb-6 lg:mb-0">
+            <div className="flex items-center gap-2.5 mb-6">
+              <div className="flex size-8 items-center justify-center bg-[#5c218b] text-white rounded shadow-sm">
+                <img
+                  src="/InstaWeb-Labs-icon.svg"
+                  className="w-4 h-4 invert brightness-0"
+                  alt="Logo"
+                />
+              </div>
+              <span className="text-xl font-extrabold tracking-tight text-slate-900">
+                Website Studio
+              </span>
+            </div>
+            <p className="text-slate-500 max-w-sm text-[15px] leading-relaxed mb-6">
+              Empowering local businesses with professional, high-performance
+              web presence. Built for speed, optimized for growth.
+            </p>
+          </div>
+
+          {/* Column 1 */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-[#5c218b] mb-6">
+              Company
+            </h4>
+            <nav className="flex flex-col gap-4">
+              <Link
+                to="/about"
+                onClick={() => window.scrollTo(0, 0)}
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                About Us
+              </Link>
+              <Link
+                to="/contact"
+                onClick={() => window.scrollTo(0, 0)}
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                Contact Us
+              </Link>
+              <Link
+                to="/editorial-guidelines"
+                onClick={() => window.scrollTo(0, 0)}
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                Editorial Guidelines
+              </Link>
+            </nav>
+          </div>
+
+          {/* Column 2 */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-[#5c218b] mb-6">
+              Resources
+            </h4>
+            <nav className="flex flex-col gap-4">
+              <Link
+                to="/"
+                onClick={(e) => handleBlogClick(e)}
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                Blog
+              </Link>
+              <Link
+                to="/categories"
+                onClick={() => window.scrollTo(0, 0)}
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                Top Categories
+              </Link>
+              <a
+                href="/sitemap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                Sitemap
+              </a>
+            </nav>
+          </div>
+
+          {/* Column 3 */}
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-[#5c218b] mb-6">
+              Connect
+            </h4>
+            <nav className="flex flex-col gap-4">
+              <a
+                href="https://twitter.com/yourhandle"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                Twitter
+              </a>
+              <a
+                href="https://linkedin.com/company/yourcompany"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                LinkedIn
+              </a>
+              <a
+                href="https://instagram.com/yourhandle"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-slate-500 hover:text-[#5c218b] transition-colors"
+              >
+                Instagram
+              </a>
+            </nav>
+          </div>
         </div>
-        Website Studio
+
+        {/* Legal Bar */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 pt-8 border-t border-slate-200">
+          {/* Copyright & Credit */}
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-semibold text-slate-500">
+              © {new Date().getFullYear()} Website Studio | Smart Website
+              Builder for Local Businesses
+            </p>
+            <p className="text-[11px] font-medium text-slate-400">
+              AI Pipeline built with{" "}
+              <a
+                href="https://pollinations.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#5c218b] underline transition-colors font-bold"
+              >
+                pollinations.ai
+              </a>
+            </p>
+          </div>
+
+          {/* Legal Links */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link
+              to="/affiliate-disclosure"
+              onClick={() => window.scrollTo(0, 0)}
+              className="text-xs font-semibold text-slate-500 hover:text-[#5c218b] transition-colors"
+            >
+              Affiliate Disclosure
+            </Link>
+            <Link
+              to="/privacy-policy"
+              onClick={() => window.scrollTo(0, 0)}
+              className="text-xs font-semibold text-slate-500 hover:text-[#5c218b] transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              to="/terms-of-service"
+              onClick={() => window.scrollTo(0, 0)}
+              className="text-xs font-semibold text-slate-500 hover:text-[#5c218b] transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <Link
+              to="/cookie-policy"
+              onClick={() => window.scrollTo(0, 0)}
+              className="text-xs font-semibold text-slate-500 hover:text-[#5c218b] transition-colors"
+            >
+              Cookie Policy
+            </Link>
+          </div>
+        </div>
       </div>
-      <div className="text-[#4a4455] text-sm font-medium">© {new Date().getFullYear()} Website Studio. All rights reserved.</div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export const FinalCta = ({ post }) => (
   <section className="px-6 max-w-5xl mx-auto mb-24">
@@ -184,7 +366,7 @@ export const TrendsSection = ({ content, image }) => (
       </div>
       {image && (
         <div className="lg:w-1/2 relative group">
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#5c218b]/20 to-transparent rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+          <div className="absolute inset-0 bg-linear-to-tr from-[#5c218b]/20 to-transparent rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
           {/* ADDED OVERFLOW HIDDEN AND BADGE */}
           <div className="relative overflow-hidden rounded-3xl shadow-xl border border-slate-100">
             <img src={getImgUrl(image)} alt="Trends" className="w-full" />
@@ -287,7 +469,7 @@ export const CaseStudiesSection = ({ content, images }) => (
           const safeImgUrl = typeof imgData === 'object' ? imgData.url : imgData;
           
           return (
-            <div key={i} className="relative rounded-3xl overflow-hidden bg-[#191c1e] group aspect-square md:aspect-square lg:aspect-auto lg:h-[600px]">
+            <div key={i} className="relative rounded-3xl overflow-hidden bg-[#191c1e] group aspect-square md:aspect-square lg:aspect-auto lg:h-150">
               <img
                 src={safeImgUrl}
                 alt="Success Story"
@@ -295,7 +477,7 @@ export const CaseStudiesSection = ({ content, images }) => (
               />
             
               {/* The Text Overlay Container */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#191c1e] via-[#191c1e]/80 to-transparent flex items-center p-6 md:p-10 lg:p-12 hover:scale-105 transition-transform duration-700">
+              <div className="absolute inset-0 bg-linear-to-t from-[#191c1e] via-[#191c1e]/80 to-transparent flex items-center p-6 md:p-10 lg:p-12 hover:scale-105 transition-transform duration-700">
                 <div className="w-full">
                   <div className="text-[#e0b6ff] text-xs font-bold mb-3 uppercase tracking-[0.2em]">Case Study</div>
                   <h3 className="text-xl lg:text-2xl font-bold text-white mb-4 leading-tight" dangerouslySetInnerHTML={{ __html: study.businessProfile }}></h3>
@@ -518,7 +700,7 @@ export const CompetitorSection = ({ content }) => {
                           target="_blank" 
                           rel="noopener noreferrer" 
                           title={`Start building with ${comp.platformName}`}
-                          className="inline-flex items-center justify-center w-full px-8 py-4 bg-gradient-to-r from-[#5c218b] to-[#753ca5] text-white rounded-full font-black text-lg shadow-xl shadow-purple-900/20 hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 gap-2 group/btn"
+                          className="inline-flex items-center justify-center w-full px-8 py-4 bg-linear-to-r from-[#5c218b] to-[#753ca5] text-white rounded-full font-black text-lg shadow-xl shadow-purple-900/20 hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 gap-2 group/btn"
                         >
                           Reach the Builder
                           <Zap className="w-5 h-5 text-[#ffb6ff] group-hover/btn:scale-110 transition-transform" />
@@ -604,7 +786,7 @@ export const LocalSeoSection = ({ content }) => (
       </div>
       <div className="lg:col-span-7 relative min-h-100">
          <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800" alt="Local SEO Map" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50" />
-         <div className="absolute inset-0 bg-gradient-to-r from-[#5c218b] to-transparent"></div>
+         <div className="absolute inset-0 bg-linear-to-r from-[#5c218b] to-transparent"></div>
       </div>
     </div>
   </section>
@@ -667,7 +849,7 @@ export const FaqSection = ({ content }) => {
           target="_blank"
           rel="noopener noreferrer"
           title="Ask Websites.co.in directly"
-          className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#5c218b] to-[#753ca5] text-white rounded-full font-black text-lg shadow-xl shadow-purple-900/20 hover:scale-[1.03] hover:shadow-2xl transition-all duration-300 gap-3 group"
+          className="inline-flex items-center justify-center px-8 py-4 bg-linear-to-r from-[#5c218b] to-[#753ca5] text-white rounded-full font-black text-lg shadow-xl shadow-purple-900/20 hover:scale-[1.03] hover:shadow-2xl transition-all duration-300 gap-3 group"
         >
           <MessageCircle className="w-6 h-6 text-[#ffb6ff] group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300" />
           Ask Websites.co.in
