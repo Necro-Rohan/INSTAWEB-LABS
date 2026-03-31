@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/errorBoundary/ErrorBoundary.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
-import HtmlSitemap from "./pages/HTMLSitemap.jsx";
+import HtmlSitemap from "./pages/HtmlSitemap.jsx";
 
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const BlogPage = lazy(() => import("./pages/BlogPage"));
