@@ -15,48 +15,118 @@ cloudinary.config({
 
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// const githubAI = new OpenAI({
-//   baseURL: "https://models.inference.ai.azure.com",
-//   apiKey: process.env.GITHUB_TOKEN,
-// });
+const faqPools = {
+  general: [
+    "What is a website builder and how does it work?",
+    "Which website builder is best for beginners?",
+    "Do I need coding skills to use a website builder?",
+    "How do I choose the right website builder for my business?",
+    "What features should I look for in a website builder?",
+    "Are website builders better than hiring a developer?",
+    "Can I switch website builders later if needed?",
+    "What are the limitations of website builders?",
+    "Is it worth using a website builder for a small business?",
+    "How long does it take to build a website using a builder?",
+  ],
 
-const MASTER_FAQ_LIST = `
-1. Why does a business need a website?
-2. Why does the physical address of a business need to be entered at the time of website creation?
-3. There is a lot of hype for SEO. What is SEO?
-4. How does a business's location help in online exposure?
-5. What is websites.co.in?
-6. What does the websites.co.in platform do?
-7. Along with creating the website, does websites.co.in handle SEO for the website too?
-8. Doesn't updating a website with pages or content require technical skills?
-9. How can users create or update a page on their website through the web dashboard?
-10. How can users create or update a post through the web dashboard?
-11. Does websites.co.in have an app?
-12. How can users update their website pages using the Websites.co.in mobile app?
-13. Does the Websites.co.in app allow business owners to create and publish posts directly?
-14. How does the 'SEO tags' feature work when users are editing posts and pages on the platform?
-15. Does the builder offer a draft mode for saving unpublished page content?
-16. Is the primary management dashboard free to use on Websites.co.in?
-17. Where within the platform can owners update their core business details?
-18. What is the standard process for upgrading or subscribing to a paid Websites.co.in plan?
-19. How do users unlock restricted features if they are currently on a limited account tier?
-20. How can a domain be purchased through Websites.co.in?
-21. What are the steps to link an existing domain to a Websites.co.in website?
-22. Why should a business update its website regularly?
-23. Can posts be shared on social media?
-24. What type of content should a business add to its website?
-25. Is there a way for potential customers to contact the business directly?
-26. Where can website analytics be monitored?
-27. How will SEO help in the growth of a business?
-28. How long does it take for SEO to improve business visibility and generate organic web traffic?
-29. Does Websites.co.in provide inorganic growth?
-30. How can a business determine if Websites.co.in is the right platform for its needs?
-31. What is organic web traffic?
-32. Where within the dashboard can merchants track and manage their e-commerce orders?
-33. How can site owners preview or view the recent updates made to their Websites.co.in site?
-34. Does the platform allow users to add new web pages directly through its mobile app?
-`;
+  pricing: [
+    "How much does a website builder typically cost?",
+    "Are there any hidden costs in website builders?",
+    "Is a free website builder enough for a business?",
+    "What is the difference between free and paid plans?",
+    "Do I need to pay separately for hosting and domain?",
+    "Which website builders offer the best value for money?",
+    "Are cheap website builders reliable?",
+    "How much should a small business spend on a website?",
+    "Do website builders charge extra for SEO tools?",
+    "Is it cheaper to build a website yourself or hire someone?",
+  ],
 
+  features: [
+    "Do website builders support online booking systems?",
+    "Can I add e-commerce features to my website?",
+    "Are website builders mobile-friendly?",
+    "Do website builders include SEO tools?",
+    "Can I customize the design of my website?",
+    "Do website builders support third-party integrations?",
+    "Can I create multiple pages easily?",
+    "Do website builders offer templates for my industry?",
+    "Can I add forms and contact options to my website?",
+    "Do website builders support blogging features?",
+  ],
+
+  seo: [
+    "Can a website builder help my business rank on Google?",
+    "How do website builders handle SEO optimization?",
+    "Is local SEO possible with a website builder?",
+    "How long does it take for SEO results to show?",
+    "Can I edit meta tags and keywords easily?",
+    "Do website builders generate sitemap and robots.txt automatically?",
+    "Will my website appear on Google Maps searches?",
+    "What SEO mistakes should I avoid with website builders?",
+    "Are website builders good for long-term SEO growth?",
+    "Can I track website traffic and analytics easily?",
+  ],
+
+  usability: [
+    "How easy is it to update content on my website?",
+    "Can I manage my website from a mobile device?",
+    "Do website builders offer drag-and-drop editing?",
+    "Can beginners create a professional-looking website?",
+    "How often should I update my website content?",
+    "Do website builders offer automatic backups?",
+    "Is it easy to redesign my website later?",
+    "Can multiple users manage the same website?",
+    "How secure are website builders?",
+    "What kind of support do website builders provide?",
+  ],
+
+  growth: [
+    "Can a website builder help generate leads for my business?",
+    "How do website builders help increase sales?",
+    "Can I scale my website as my business grows?",
+    "Are website builders suitable for large businesses?",
+    "How do website builders improve customer engagement?",
+    "Can I integrate social media with my website?",
+    "Do website builders support online payments?",
+    "Can I use a website builder for multiple locations?",
+    "How do website builders compare to WordPress?",
+    "What is the best website builder for my specific industry?",
+  ],
+};
+
+function pickRandom(arr, count) {
+  return arr.sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
+
+function generateFAQsDynamic() {
+  const total = Math.floor(Math.random() * 5) + 8; // 8–12 FAQs
+
+  let result = [];
+
+  result.push(...pickRandom(faqPools.general, 2));
+  result.push(...pickRandom(faqPools.pricing, 2));
+  result.push(...pickRandom(faqPools.features, 2));
+  result.push(...pickRandom(faqPools.seo, 2));
+
+  // dynamic remaining fill
+  const remaining = total - result.length;
+
+  const extraPool = [
+    ...faqPools.usability,
+    ...faqPools.growth,
+  ];
+
+  result.push(...pickRandom(extraPool, remaining));
+
+  return result.sort(() => 0.5 - Math.random());
+}
+
+const MASTER_FAQ_LIST = generateFAQsDynamic();
+const selectedFAQs = generateFAQsDynamic();
+
+const faqText = selectedFAQs.map((q, i) => `${i + 1}. ${q}`).join("\n");
 
 /**
  * Micro-Retry Helper to prevent API Rate Limits (429) and timeouts 
@@ -93,15 +163,33 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
   }
 }
 
-
 function getTopHalfSchema(adjective, category, geography) {
   return {
     type: Type.OBJECT,
     properties: {
       metaTitle: {
         type: Type.STRING,
-        description: `SEO title strictly under 60 chars. MUST start with 'Top 10' or '10 Best' followed seamlessly by the adjective '${adjective}'. It must contain ${category} and ${geography}. Example format: '10 Best ${adjective} Website Builders for ${category}s'.`,
-      },
+        description: `Generate a high-CTR SEO title under 60 characters.
+        CRITICAL RULES:
+        - DO NOT always start with "Top 10" or "Best"
+        - Randomly choose ONE of the following title formats
+        - MUST include ${category} and ${geography}, If the ${geography} is a long name, you can use a well-known abbreviation, short name or a geo modifier like "Near You" or "Local" instead to save characters.But you have to make sure whole title is under 60 characters.
+        - MUST feel natural and human-written
+        - **MOST IMPORTANT**: The title MUST be under 60 characters to avoid Google truncation and maximize click-through rates. If the title exceeds 60 characters, it will be penalized in search rankings and may not perform well in attracting clicks. Always prioritize concise, punchy language that fits within this limit while still being engaging and relevant to the target audience.
+
+        TITLE FORMAT VARIANTS(You don't have to follow these verbatim, but they should be SIMILAR in STYLE and STRUCTURE. The key is to randomize and not repeat the same format across articles, so don't just pick directly from this list every time, use it as inspiration to create similar engaging titles that fit the character limit, also Please don't just favour the first 2 formats, make sure to use all of them to create diverse titles across different articles):
+
+        1. "10 Best ${category} Website Builders in ${geography} (2026)"
+        2. "Best Website Builders for [pluralize the ${category}] in ${geography} - Compared"
+        3. "${category} Website Builders in ${geography}: Top Picks & Costs"
+        4. "In ${geography}, The Best Website Builder for [pluralize the ${category}] is... (2026 Guide)"
+        5. "${category} Website Builders in ${geography} (Pricing + Features)"
+
+        IMPORTANT:
+        - Use numbers in only 2-3 variants (not all)
+        - Avoid repeating the same structure across pages
+        - Keep it punchy, clickable, and natural`
+        },
       metaDescription: {
         type: Type.STRING,
         description: `SEO description under 160 chars. Write strictly in an objective, 3rd-person tone (never use 'we', 'our', or 'us'). DO NOT mention specific brand names. Instead, focus entirely on the value of finding the top 10 tools for the specific ${category} in ${geography} to entice clicks.`,
@@ -194,61 +282,71 @@ function getTopHalfSchema(adjective, category, geography) {
         },
         required: ["heading", "list"],
       },
-      caseStudies: {
+      localImplementation: {
         type: Type.OBJECT,
         properties: {
           heading: {
             type: Type.STRING,
-            description: `A realistic title for the case studies section, e.g., 'Local Success Stories: ${category}s in ${geography}' or 'How ${category}s in ${geography} Transformed with the Right Website Builder' or something similarly engaging that highlights the real-world success aspect of the case studies. The tone should be objective and third-person, as if written by an impartial industry expert, while still being compelling and relatable for the target audience. Number of words should be between 8-12 and it must include the category and geography to reinforce relevance to the reader.`,
+            description: `e.g., 'How ${category}s in ${geography} Actually Use These Builders'`,
           },
-          studies: {
+          workflows: {
             type: Type.ARRAY,
-            description: `Generate 2 hypothetical but highly realistic case studies of ${category} businesses in ${geography}.`,
+            description: `CRITICAL: DO NOT generate hypothetical case studies, fake company names, or fake revenue metrics. Instead, describe 2 highly specific, realistic operational workflows that a ${category} in ${geography} requires from a website builder. Focus on local context and actual software features (e.g., integrating local booking systems, managing multi-location inventory, or setting up emergency contact forms).`,
             items: {
               type: Type.OBJECT,
               properties: {
-                businessProfile: { type: Type.STRING },
-
-                // Mobile (Ultra Short)
-                mobileSummary: {
+                workflowType: {
+                  type: Type.STRING,
+                  description: "e.g., 'The Appointment Booking Engine'",
+                },
+                theRequirement: {
                   type: Type.STRING,
                   description:
-                    "A punchy, 15-20 word summary of the overall success and revenue growth for mobile screens.",
+                    "35-40 words explaining WHY this specific feature is critical for this niche in this local market.",
                 },
-
-                // Tablet (Medium)
-                tabletSummary: {
+                theExecution: {
                   type: Type.STRING,
                   description:
-                    "A 35-40 word summary combining the problem and the final result for tablet screens.",
-                },
-
-                // Desktop (Full Story)
-                theProblem: {
-                  type: Type.STRING,
-                  description: "30-word description of their struggles.",
-                },
-                theSolution: {
-                  type: Type.STRING,
-                  description: "30-word description of the fix.",
-                },
-                theResult: {
-                  type: Type.STRING,
-                  description: "20-word description of their revenue growth.",
+                    "35-40 words explaining exactly HOW a top-tier website builder solves this problem.",
                 },
               },
-              required: [
-                "businessProfile",
-                "mobileSummary",
-                "tabletSummary",
-                "theProblem",
-                "theSolution",
-                "theResult",
-              ],
+              required: ["workflowType", "theRequirement", "theExecution"],
             },
           },
         },
-        required: ["heading", "studies"],
+        required: ["heading", "workflows"],
+      },
+      realWorldScenarios: {
+        type: Type.OBJECT,
+        properties: {
+          heading: {
+            type: Type.STRING,
+            description: `e.g., 'Real-World Scenarios: How ${category}s in ${geography} Improve with Better Websites, CRITICAL: You don't have to use same words as this example, but the heading must clearly indicate that these are real-world, highly realistic scenarios based on actual business problems and how website features solve them. DO NOT use fake company names, fake revenue numbers, or unrealistic claims. Focus on typical business problems and how website features solve them. For this heading, don't use more than 20 words, and make sure to include the ${category} and ${geography} to keep it hyper-relevant and enticing for clicks.`,
+          },
+          scenarios: {
+            type: Type.ARRAY,
+            description: `Generate 2 highly realistic, non-fictional scenarios. DO NOT use fake company names, revenue numbers, or claims. Focus on typical business problems and how website features solve them. For example, 1. A typical salon in Pune struggles with missed appointments due to manual booking. When online scheduling is implemented with automated reminders, businesses often reduce no-shows and improve daily slot utilization. 2. A local restaurant in Jaipur faces challenges with order management during peak hours. By integrating an online ordering system, they can streamline operations, reduce errors, and increase customer satisfaction. 3. A small retail store in Lucknow has trouble showcasing its products to a wider audience. With an e-commerce website, they can reach more customers, boost sales, and compete with larger retailers. you can use examples similar to these. Each scenario should be 100% realistic and based on common issues faced by ${category}s in this niche and ${geography}, and how specific website features solve those problems. Each scenario should have a situation, solution, and outcome section.`,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                situation: {
+                  type: Type.STRING,
+                  description: `Describe a real-world problem (30-40 words) that a typical business of ${category} in ${geography} faces without a good website.`,
+                },
+                solution: {
+                  type: Type.STRING,
+                  description: `Explain how a website feature solves it (30-40 words) for a ${category} in ${geography}. CRITICAL: Focus on specific features and realistic implementations rather than vague claims and always maintain an objective, third-person tone as if written by an unbiased freelance writer or editor. Do NOT use 'you' or 'we'. Always refer to the business owner as 'the merchant' or 'the business'.`,
+                },
+                outcome: {
+                  type: Type.STRING,
+                  description: `Describe realistic improvements WITHOUT fake metrics (20-30 words) for a ${category} in ${geography}.CRITICAL: Focus on specific features and realistic implementations rather than vague claims and always maintain an objective, third-person tone as if written by an unbiased freelance writer or editor. Do NOT use 'you' or 'we'. Always refer to the business owner as 'the merchant' or 'the business'.`,
+                },
+              },
+              required: ["situation", "solution", "outcome"],
+            },
+          },
+        },
+        required: ["heading", "scenarios"],
       },
     },
     required: [
@@ -259,13 +357,14 @@ function getTopHalfSchema(adjective, category, geography) {
       "industryTrends",
       "theCostOfInaction",
       "features",
+      "localImplementation",
       "caseStudies",
     ],
   };
 }
 
 
-function getBottomHalfSchema(adjective, category, geography) {
+function getBottomHalfSchema(adjective, category, geography, faqText) {
   return {
     type: Type.OBJECT,
     properties: {
@@ -307,17 +406,18 @@ function getBottomHalfSchema(adjective, category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: "e.g., 'Why Websites.co.in is the Ultimate Solution'",
+            description:
+              "e.g., 'Why we think Websites.co.in is the Ultimate Solution'",
           },
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 2 humanized punchy paragraphs (40-45 words each). Paragraph 1 MUST highlight the extreme value (Free Domain, Free Hosting, Free SSL) and how the '1-Click Facebook Page to Website' tool saves thousands in development costs. Paragraph 2 MUST pitch the 'Magic SEO Tool' that automagically ranks sites without expensive agencies, and mention the plug-n-play e-commerce readiness.`,
+            description: `Generate exactly 2 humanized punchy paragraphs (40-45 words each). Paragraph 1 MUST highlight the extreme value (Free Domain, Free Hosting, Free SSL) and how the '1-Click Facebook Page to Website' tool saves thousands in development costs. Paragraph 2 MUST pitch the 'Magic SEO Tool' that automagically ranks sites without expensive agencies, and mention the plug-n-play e-commerce readiness. **CRITICAL**: The tone should be humanized, 3rd-person and relatable, as if written by a fellow business owner who is genuinely excited about the value of the platform, rather than a corporate marketing pitch. Avoid using overly promotional language or making unrealistic claims. Instead, focus on conveying the practical benefits and unique features that make it an ideal choice for local businesses, while still maintaining an objective perspective.`,
           },
           platformBenefits: {
             type: Type.ARRAY,
             description:
-              "Generate exactly 8 short, punchy bullet points highlighting the best technical integrations from this list: Unlimited Products, WhatsApp & Live Chat, Auto-SEO, Facebook Pixel, Hotjar, Google Analytics, Auto Multilingual, and Premium 1-on-1 Support.",
+              "Generate exactly 8 short, punchy bullet points highlighting the best technical integrations from this list: Unlimited Products, WhatsApp & Live Chat, Auto-SEO, Facebook Pixel, Hotjar, Google Analytics, Auto Multilingual, and Premium 1-on-1 Support. Focus on the specific benefits of these features for local businesses and how they can help them grow and compete in the digital landscape. Each point should be 20-30 words max.",
             items: {
               type: Type.OBJECT,
               properties: {
@@ -383,22 +483,24 @@ function getBottomHalfSchema(adjective, category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Frequently Asked Questions by ${geography} ${category}s'`,
+            description: `Generate an engaging FAQ heading relevant to ${category} businesses in ${geography} that entices clicks and provides maximum value.`,
           },
           questions: {
             type: Type.ARRAY,
-            description: `Select exactly 12 questions from the provided MASTER_FAQ_LIST. Answer them specifically for ${category} owners in ${geography}.`,
+            description: `Answer ONLY the provided FAQ questions below. Do NOT generate new ones:
+            ${faqText}
+            `,
             items: {
               type: Type.OBJECT,
               properties: {
                 question: {
                   type: Type.STRING,
                   description:
-                    "Must be an exact question selected from the MASTER_FAQ_LIST.",
+                    "Must match EXACTLY one of the provided questions. Do not modify wording.",
                 },
                 answer: {
                   type: Type.STRING,
-                  description: `A massive, highly informative 60-75 words answer. You MUST explain how Websites.co.in specifically solves this using its platform features (like the mobile app, dashboard, or auto-SEO) applied to a ${category} in ${geography}. CRITICAL: Always use third-person, objective tone as if written by an unbiased industry expert. Do NOT use 'you' or 'we'. Always refer to the business owner as 'the merchant' or 'the business'.`,
+                  description: `A 60-75 word expert answer tailored for ${category} businesses in ${geography}. Explain practical usage of website builders (including platforms like Websites.co.in) in a natural, professional tone, When relevant, mention platforms like Websites.co.in naturally as one of the solutions. Avoid forced promotion or exaggerated claims. CRITICAL: Always Use a professional, objective tone. Avoid overly promotional language. Write like an industry expert giving practical guidance.`,
                 },
               },
               required: ["question", "answer"],
@@ -617,9 +719,9 @@ async function generateJSONContent(adjective, keyword, category, geography) {
   const topSchema = getTopHalfSchema(adjective, category, geography);
 
   const bottomHalfPrompt = `${basePrompt}\nFocus on the Competitor Comparison, Why Choose Us, How It Works, Local SEO Guide, and FAQs. **THE FAQs PROTOCOL:** For the faqs section, you are strictly forbidden from making up your own questions. You MUST select exactly 12 questions from this exact list:
-  ${MASTER_FAQ_LIST}
+  ${faqText}
   When answering these 12 questions, seamlessly weave the answers into the context of a ${category} business in ${geography}.`;
-  const bottomSchema = getBottomHalfSchema(adjective, category, geography);
+  const bottomSchema = getBottomHalfSchema(adjective, category, geography, faqText);
 
   // console.log("1a. Fetching Top Half JSON...");
   // console.log("1b. Fetching Bottom Half JSON...");
