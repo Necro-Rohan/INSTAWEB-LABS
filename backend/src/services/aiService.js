@@ -96,7 +96,8 @@ const faqPools = {
 };
 
 function pickRandom(arr, count) {
-  return arr.sort(() => 0.5 - Math.random()).slice(0, count);
+  const result = [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+  return [...new Set(result)]; // to avoid duplicates
 }
 
 
@@ -123,10 +124,44 @@ function generateFAQsDynamic() {
   return result.sort(() => 0.5 - Math.random());
 }
 
-const MASTER_FAQ_LIST = generateFAQsDynamic();
 const selectedFAQs = generateFAQsDynamic();
 
 const faqText = selectedFAQs.map((q, i) => `${i + 1}. ${q}`).join("\n");
+
+const competitorPool = [
+  "Wix", "WordPress", "Shopify", "Squarespace", "Weebly", "GoDaddy",
+  "Webflow", "Duda", "Jimdo", "Zyro", "Site123", "Strikingly",
+  "Hostinger", "BigCommerce", "Carrd", "Framer", "Dorik", "Webnode",
+  "Ghost", "Elementor", "Pixpa", "HubSpot CMS", "WooCommerce",
+  "Magento", "PrestaShop", "Volusion", "Shift4Shop", "Bubble",
+  "Glide", "Softr"
+];
+
+function shuffle(arr) {
+  return [...arr].sort(() => 0.5 - Math.random());
+}
+
+const selectedCompetitors = [...new Set(shuffle(competitorPool))].slice(0, 10); // the 10 random compititors
+
+const competitorsText = selectedCompetitors
+  .map((c, i) => `${i + 2}. ${c}`)
+  .join("\n");
+
+const styles = [
+  "use-case driven",
+  "problem-solution",
+  "comparison-focused",
+  "local-business focused",
+  "feature breakdown",
+  "performance-focused",
+  "beginner-friendly explanation",
+];
+
+function pickRandomstyle(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+const randomStyle = pickRandomstyle(styles);
 
 /**
  * Micro-Retry Helper to prevent API Rate Limits (429) and timeouts 
@@ -177,12 +212,12 @@ function getTopHalfSchema(adjective, category, geography) {
         - MUST feel natural and human-written
         - **MOST IMPORTANT**: The title MUST be under 60 characters to avoid Google truncation and maximize click-through rates. If the title exceeds 60 characters, it will be penalized in search rankings and may not perform well in attracting clicks. Always prioritize concise, punchy language that fits within this limit while still being engaging and relevant to the target audience.
 
-        TITLE FORMAT VARIANTS(You don't have to follow these verbatim, but they should be SIMILAR in STYLE and STRUCTURE. The key is to randomize and not repeat the same format across articles, so don't just pick directly from this list every time, use it as inspiration to create similar engaging titles that fit the character limit, also Please don't just favour the first 2 formats, make sure to use all of them to create diverse titles across different articles):
+        TITLE FORMAT VARIANTS(You don't have to follow these verbatim, but they should be SIMILAR in STYLE and STRUCTURE. The key is to randomize and not repeat the same format across articles, so don't just pick directly from this list every time, use it as inspiration to create similar engaging titles that fit the character limit, also Please don't just favour the first 2 formats, make sure to use all of them to create diverse titles across different articles, The examples below are just to illustrate the style and structure, do not copy them exactly, create similar variations that feel natural and engaging):
 
         1. "10 Best ${category} Website Builders in ${geography} (2026)"
-        2. "Best Website Builders for [pluralize the ${category}] in ${geography} - Compared"
+        2. "Best Website Builders for ${category} in ${geography} - Compared"
         3. "${category} Website Builders in ${geography}: Top Picks & Costs"
-        4. "In ${geography}, The Best Website Builder for [pluralize the ${category}] is... (2026 Guide)"
+        4. "In ${geography}, The Best Website Builder for ${category} is... (2026 Guide)"
         5. "${category} Website Builders in ${geography} (Pricing + Features)"
 
         IMPORTANT:
@@ -192,18 +227,78 @@ function getTopHalfSchema(adjective, category, geography) {
       },
       metaDescription: {
         type: Type.STRING,
-        description: `SEO description under 160 chars. Write strictly in an objective, 3rd-person tone (never use 'we', 'our', or 'us'). DO NOT mention specific brand names. Instead, focus entirely on the value of finding the top 10 tools for the specific ${category} in ${geography} to entice clicks.`,
+        description: `
+        Write a compelling meta description **strictly under 155-160 characters**.
+
+        CRITICAL:
+        - MUST include ${category} and ${geography}
+        - Focus on helping users choose the right website builder
+        - Highlight comparison, insights, or decision-making value
+
+        STYLE:
+        - Write in a natural, human tone (not robotic)
+        - Use varied phrasing across pages
+        - Avoid repeating patterns like "Discover the best" or "Find the top 10"
+        - Create curiosity or urgency where appropriate
+
+        DO NOT:
+        - mention specific brand names
+        - sound overly promotional or exaggerated
+        - repeat the same structure across pages
+
+        GOAL:
+        The description should feel like a helpful preview that makes the user want to click and explore the comparison.
+        `,
       },
       hero: {
         type: Type.OBJECT,
         properties: {
           h1: {
             type: Type.STRING,
-            description: `A compelling headline (H1) that explicitly mentions exactly 10 builders. It MUST naturally incorporate the adjective '${adjective}', the ${category}, and ${geography} to entice clicks. (e.g., 'The 10 Most ${adjective} Website Builders for...' or 'Top 10 ${adjective} Platforms for...') or something similarly engaging that highlights the comprehensive ranking and review aspect of the article. The tone should be objective and third-person, as if written by an impartial industry expert. DO NOT use first-person language like 'we' or 'our'. The focus should be entirely on the value of the content for the reader (finding the top 10 tools for their specific needs) rather than promoting any particular solution.`,
+            description: `
+          Generate a high-CTR, natural-sounding H1 headline for a comparison article about website builders.
+
+          CRITICAL:
+          - MUST include ${category} and ${geography}
+          - SHOULD include the adjective '${adjective}' naturally
+          - MUST feel human-written and engaging
+          - SHOULD NOT always start with "Top 10" or "Best"
+          - Vary structure across pages (list, question, comparison, insight)
+
+          ALLOWED STYLES (use variation, DO NOT copy exactly):
+          - "Best ${adjective} Website Builders for ${category}s in ${geography}"
+          - "${category} Website Builders in ${geography}: What Actually Works"
+          - "Which ${adjective} Website Builder Fits ${category}s in ${geography}?"
+          - "${adjective} Website Builders ${category}s in ${geography} Should Consider"
+          - "A Practical Comparison of Website Builders for ${category}s in ${geography}"
+
+          IMPORTANT:
+          - DO NOT repeat patterns across pages
+          - DO NOT sound templated
+          - Keep it concise and compelling
+          `,
           },
           paragraphs: {
             type: Type.STRING,
-            description: `A highly persuasive 35-40 words paragraph. It must explicitly state that you have reviewed and ranked the 10 best website builders for ${category}s in ${geography} to help them easily compare their options and launch their business. DO NOT mention any specific brand names. The tone should be objective and third-person, as if written by an impartial industry expert. The focus should be entirely on the value of the content for the reader (finding the top 10 tools for their specific needs) rather than promoting any particular solution.`,
+            description: `
+            Write a concise (35-40 words) introductory paragraph for this comparison article.
+
+            CRITICAL:
+            - Focus on helping ${category} businesses in ${geography} choose the right website builder
+            - Clearly indicate that multiple platforms have been analyzed and compared
+            - DO NOT use identical phrasing like "we reviewed and ranked"
+            - DO NOT mention specific brand names
+            - Keep tone professional, neutral, and informative
+
+            STYLE GUIDELINES:
+            - Write like an expert advisor, not a marketer
+            - Vary sentence structure across pages
+            - Avoid repetitive openings (e.g., "This guide...", "In this article...")
+            - Make it feel tailored to ${category} businesses in ${geography}
+
+            GOAL:
+            The paragraph should immediately communicate value, relevance, and clarity to the reader without sounding templated.
+            `,
           },
         },
         required: ["h1", "paragraphs"],
@@ -213,12 +308,19 @@ function getTopHalfSchema(adjective, category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'The Evolving Digital Landscape for ${category}s in ${geography}'`,
+            description: `Generate a clear, engaging intro heading for ${category} businesses in ${geography}. It should feel editorial, specific, and useful. Avoid always using the same opening pattern.`,
           },
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 3 massive paragraphs (50-60 words each) exploring the local market context for ${category}s in ${geography}.`,
+            description: `Generate 3 natural paragraphs of 50-60 words each. 
+            The introduction should:
+            - explain why ${category} businesses in ${geography} need the right website builder
+            - mention the practical factors being compared, such as ease of use, SEO, booking, pricing, and scalability
+            - feel specific to this niche and location
+            - avoid repetitive template language
+            - sound like a helpful expert, not a marketing script
+            - Contain words count between 50-60 words per paragraph to ensure depth without overwhelming the reader.`,
           },
         },
         required: ["heading", "paragraphs"],
@@ -228,13 +330,34 @@ function getTopHalfSchema(adjective, category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Future Trends in the ${geography} ${category} Industry'`,
+            description: `
+            Generate a relevant, insight-driven heading about current trends affecting ${category} businesses in ${geography}.
+            Avoid generic phrases like "digital transformation". Make it feel specific, modern, and tailored to the industry.
+            `,
           },
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description:
-              "Generate exactly 2 massive paragraphs (40-50 words each) detailing why digital transformation is mandatory.",
+            description: `
+            Write 2-3 concise paragraphs (35-55 words each) explaining real-world trends affecting ${category} businesses in ${geography}.
+
+            CRITICAL:
+            - Focus on practical changes (e.g., online bookings, mobile-first users, local SEO, customer expectations)
+            - Tie trends directly to ${category} workflows and challenges
+            - Reference how businesses in ${geography} are adapting
+
+            DO NOT:
+            - use generic phrases like "digital transformation is important"
+            - repeat the same ideas across paragraphs
+            - sound like a generic business article
+
+            STYLE:
+            - Write like an industry analyst explaining real shifts
+            - Keep it specific, relevant, and grounded in real-world use cases
+
+            GOAL:
+            The reader should feel: "Yes, this reflects what's actually happening in my industry and city."
+            `,
           },
         },
         required: ["heading", "paragraphs"],
@@ -244,13 +367,35 @@ function getTopHalfSchema(adjective, category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'The Cost of Not Having a Website & Common Mistakes'`,
+            description: `
+            Generate a compelling heading that highlights the risks and missed opportunities for ${category} businesses in ${geography} without an effective website.
+
+            Avoid generic phrases. Make it specific, practical, and relevant to real-world business challenges.
+            `,
           },
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description:
-              "Generate exactly 2 massive paragraphs (60-65 words each) quantifying lost revenue and common digital mistakes.",
+            description: `
+            Write 2-3 concise paragraphs (40-60 words each) explaining the practical consequences of not having a well-optimized website for ${category} businesses in ${geography}.
+
+            CRITICAL:
+            - Focus on real-world scenarios (missed bookings, lost leads, poor visibility, manual processes)
+            - Tie directly to ${category}-specific workflows
+            - Reference how customers in ${geography} search and make decisions
+
+            DO NOT:
+            - invent statistics or fake percentages
+            - use vague claims like "businesses lose revenue"
+            - repeat generic statements across paragraphs
+
+            STYLE:
+            - Write like an industry expert highlighting practical risks
+            - Keep tone informative, grounded, and realistic
+
+            GOAL:
+            The reader should clearly understand what they are missing out on and why having the right website matters in their specific market.
+            `,
           },
         },
         required: ["heading", "paragraphs"],
@@ -260,20 +405,49 @@ function getTopHalfSchema(adjective, category, geography) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Essential Digital Tools for ${category}s'`,
+            description: `
+            Generate a clear, relevant heading describing essential website features for ${category} businesses in ${geography}.
+
+            Avoid generic phrasing. Make it feel tailored to the industry and practical needs.
+            `,
           },
           list: {
             type: Type.ARRAY,
-            description: `Generate exactly 6 highly specific features for a ${category} website.`,
+            description: `
+            Generate 5-7 highly relevant features required for a ${category} website.
+
+            CRITICAL:
+            - Each feature MUST be specific to ${category} workflows
+            - Focus on real operational needs (e.g., booking systems, inventory display, lead capture, scheduling)
+            - Avoid generic features like "fast loading" or "SEO tools" unless tied to a real use case
+            - Include variation in features across different pages
+
+            CATEGORY + GEO REQUIREMENT:
+            - Each feature should reflect how ${category} businesses operate
+            - Where possible, reference how businesses in ${geography} use these features
+
+            DESCRIPTION RULES:
+            - Each description must be 30-40 words
+            - Must explain:
+              → why the feature matters
+              → how it is used in real-world scenarios
+
+            STYLE:
+            - Write like a practical guide for business owners
+            - Avoid repetitive phrasing across features
+            - Vary sentence structure
+
+            ICON KEYWORD:
+            - Provide a simple, relevant keyword representing the feature (e.g., "booking", "analytics", "store", "calendar")
+
+            GOAL:
+            The reader should clearly understand what features they actually need to run their ${category} business online effectively.
+            `,
             items: {
               type: Type.OBJECT,
               properties: {
                 title: { type: Type.STRING },
-                description: {
-                  type: Type.STRING,
-                  description:
-                    "A detailed 30 to 35 words explanation of the feature.",
-                },
+                description: { type: Type.STRING },
                 iconKeyword: { type: Type.STRING },
               },
               required: ["title", "description", "iconKeyword"],
@@ -364,7 +538,7 @@ function getTopHalfSchema(adjective, category, geography) {
 }
 
 
-function getBottomHalfSchema(adjective, category, geography, faqText) {
+function getBottomHalfSchema(adjective, category, geography, faqText, competitorsText, randomStyle) {
   return {
     type: Type.OBJECT,
     properties: {
@@ -373,26 +547,156 @@ function getBottomHalfSchema(adjective, category, geography, faqText) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Top 10 ${adjective} Website Builders for ${category}s in ${geography} Ranked'`,
+            description: `
+            Generate an engaging, high-CTR heading for a ranked comparison of website builders for ${category} businesses in ${geography}.
+
+            IMPORTANT:
+            - The heading must feel natural and human-written
+            - Avoid repeating common patterns like always starting with "Top 10" or "Best"
+            - Vary structure and phrasing across pages
+            - Optimize for click-through rate (CTR)
+
+            Here are EXAMPLES of acceptable styles (DO NOT copy, use as inspiration only):
+
+            - "Best Website Builders for ${category}s in ${geography} (Compared)"
+            - "${category} Website Builders in ${geography}: Top Picks & Pricing"
+            - "Which Website Builder Works Best for ${category}s in ${geography}?"
+            - "${adjective} Website Builders for ${category}s in ${geography}"
+            - "Top Platforms for ${category} Businesses in ${geography}"
+
+            CRITICAL:
+            - Do NOT repeat these examples exactly
+            - Generate a unique variation each time
+            `,
           },
           comparisons: {
             type: Type.ARRAY,
-            description: `Generate exactly 10 platforms ranked 1 through 10. Websites.co.in MUST be Rank 1. For ranks 2 through 10, randomly select 9 competitors from this massive pool: [Wix, WordPress, Shopify, Squarespace, Weebly, GoDaddy, Webflow, Duda, Jimdo, Zyro, Site123, Strikingly, Hostinger, BigCommerce, Carrd, Framer, Dorik, Webnode, Ghost, Elementor, Pixpa, HubSpot CMS, WooCommerce, Magento, PrestaShop, Volusion, Shift4Shop, Bubble, Glide, Softr]. **CRITICAL:** You must shuffle and randomize which 9 you pick and their order so no two articles look the same, it should be unique each time you have to randomize each time then select 9 randomly from the randomized list. DO NOT include URLs.`,
+            description: `
+            Generate a ranked comparison using 7-11 platforms from the provided list in CRITICAL INPUT.
+
+            CRITICAL INPUT:
+            Use ONLY these competitors:
+            1. Websites.co.in
+            ${competitorsText}
+
+            STRICT RULES:
+            - Websites.co.in must be included and typically ranked highly (though not always #1, it can be ranked 1 or 2 to maintain credibility)
+            - Use a ${randomStyle} overall framing for this page's comparison section, and explicitly apply a different style to each platform's analysis to ensure unique voices and avoid templated content.
+            - Each platform should still vary its tone and structure
+            - Do NOT introduce any platform outside the provided list
+            - Do NOT include URLs or promotional language
+            - Focus on objective strengths and weaknesses for each platform based on realistic features and limitations for ${category} businesses in ${geography}
+            - Each platform sould have a completely UNIQUE writing style and analysis to ensure the content feels independently written and not generated from a template. Vary tone, structure, and sentence openings across platforms to create distinct voices for each one.
+            - Make sure you don't always pick 7 or 8 competitors, sometimes pick 9, 10, 11 or 12 to create more variation across articles.
+
+            CRITICAL WRITING RULES:
+            - Each platform MUST have a completely UNIQUE writing style
+            - Each analysis MUST feel like it was written independently
+            - Vary tone, structure, and sentence openings across platforms
+
+            STYLE VARIATION:
+            For EACH platform, randomly use a different style such as:
+            - use-case driven
+            - problem-solution
+            - comparison-focused
+            - local-business focused
+            - feature breakdown
+
+            IMPORTANT:
+            Explicitly apply a DIFFERENT style to each platform.
+
+            CATEGORY + GEO REQUIREMENT:
+            - Every platform analysis SHOULD reference ${category} businesses
+            - Every platform MUST include at least one real-world use case in ${geography}
+
+            Example:
+            "For sports teams in ${geography}, managing registrations and schedules..."
+
+            ANTI-REPETITION RULES:
+            DO NOT:
+            - start sentences repeatedly with "Offers", "Provides", "Includes"
+            - reuse sentence structures across platforms
+            - write generic SaaS descriptions
+            - repeat phrasing patterns
+
+            CONTENT REQUIREMENTS:
+
+            For each platform:
+
+            theGood:
+            - 3-5 points
+            - Each point must be 30-45 words
+            - Each point must include:
+              → a category-specific need
+              → a real-world use case
+
+            theBad:
+            - 2-3 points
+            - Each point must be 25-40 words
+            - Focus on realistic limitations for ${category} businesses
+
+            STRUCTURE FLEXIBILITY:
+            - Mix bullet-style and paragraph-style naturally
+            - Do NOT make all platforms identical in format
+
+            GOAL:
+            Each platform must feel like a completely different expert analysis tailored for ${category} businesses in ${geography}.
+            `,
             items: {
               type: Type.OBJECT,
               properties: {
                 rank: {
                   type: Type.NUMBER,
-                  description: "The placement of the platform from 1 to 10.",
+                  description:
+                    "The ranking position of the platform in this comparison (1 for the best, 2 for second-best, etc.)",
                 },
-                platformName: { type: Type.STRING },
+                platformName: {
+                  type: Type.STRING,
+                  description: `The name of the platfroms being compared from the list Websites.co.in and ${competitorsText} `,
+                },
                 theGood: {
-                  type: Type.STRING,
-                  description: `Generate pointwise(numbered) detailed, highly descriptive (it should seem like a human written review) strengths of this specific platform. Use an objective, third-party tone. For Rank 1, generate minimum 5 points (30-45 words per point) highlighting why it is the absolute best software choice for a ${category} in ${geography}. For Ranks 2-10, generate minimum 3 detailed points (30-45 words per point) listing their genuine strengths.`,
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: `
+                  Return 3-5 distinct strengths as an array of strings.
+
+                  STRICT RULES:
+                  - Each item MUST be a single standalone point (NOT a paragraph containing multiple points)
+                  - DO NOT use numbering (1., 2., etc.) or bullet symbols (-, •)
+                  - Each point must be 30-45 words
+                  - Each point MUST include:
+                    → one ${category}-specific need
+                    → one real-world use case in ${geography}
+
+                  STYLE:
+                  - Each platform must use a DIFFERENT writing style
+                  - Vary sentence openings (avoid repeating patterns like "Offers", "Provides")
+                  - Make each point feel independently written
+
+                  GOAL:
+                  Each item should render cleanly as a UI bullet point without additional parsing.
+                  `,
                 },
+
                 theBad: {
-                  type: Type.STRING,
-                  description: `Generate pointwise(numbered) detailed, highly descriptive weaknesses. Use an objective, third-party tone. For Rank 1, generate exactly 2 very minor, harmless limitations (20-30 words per point). For Ranks 2-10, generate exactly 3 detailed points (30-45 words per point) highlighting what they lack for local businesses compared to the industry standard.`,
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: `
+                  Return 2-3 distinct weaknesses as an array of strings.
+
+                  STRICT RULES:
+                  - Each item MUST be a single standalone limitation
+                  - DO NOT use numbering or bullet symbols
+                  - Each point must be 25-40 words
+                  - Focus on realistic drawbacks for ${category} businesses in ${geography}
+
+                  STYLE:
+                  - Vary tone and sentence structure across platforms
+                  - Avoid repeating phrasing patterns
+
+                  GOAL:
+                  Each item should render cleanly as a UI bullet point.
+                  `,
                 },
               },
               required: ["rank", "platformName", "theGood", "theBad"],
@@ -407,28 +711,49 @@ function getBottomHalfSchema(adjective, category, geography, faqText) {
           heading: {
             type: Type.STRING,
             description:
-              "e.g., 'Why we think Websites.co.in is the Ultimate Solution'",
+              "Generate a clear, confident heading explaining why Websites.co.in is a strong option for local businesses. Avoid exaggerated or sales-heavy language.",
           },
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 2 humanized punchy paragraphs (40-45 words each). Paragraph 1 MUST highlight the extreme value (Free Domain, Free Hosting, Free SSL) and how the '1-Click Facebook Page to Website' tool saves thousands in development costs. Paragraph 2 MUST pitch the 'Magic SEO Tool' that automagically ranks sites without expensive agencies, and mention the plug-n-play e-commerce readiness. **CRITICAL**: The tone should be humanized, 3rd-person and relatable, as if written by a fellow business owner who is genuinely excited about the value of the platform, rather than a corporate marketing pitch. Avoid using overly promotional language or making unrealistic claims. Instead, focus on conveying the practical benefits and unique features that make it an ideal choice for local businesses, while still maintaining an objective perspective.`,
+            description: `Generate exactly 2 humanized, concise paragraphs (40-50 words each).
+
+            Paragraph 1:
+            - Explain the practical value of free domain, hosting, and SSL
+            - Mention the 1-Click Facebook Page to Website tool naturally
+            - Focus on saving time and setup cost for local businesses
+
+            Paragraph 2:
+            - Explain the value of SEO tools, e-commerce readiness, and simple management
+            - Keep the tone helpful and credible, not promotional
+            - Avoid making ranking guarantees or unrealistic claims
+
+            Style:
+            - Sound like a practical recommendation from an experienced advisor
+            - Use a warm but objective tone
+            - Avoid hype phrases like "best ever", "automagically", or "ultimate solution"`,
           },
           platformBenefits: {
             type: Type.ARRAY,
-            description:
-              "Generate exactly 8 short, punchy bullet points highlighting the best technical integrations from this list: Unlimited Products, WhatsApp & Live Chat, Auto-SEO, Facebook Pixel, Hotjar, Google Analytics, Auto Multilingual, and Premium 1-on-1 Support. Focus on the specific benefits of these features for local businesses and how they can help them grow and compete in the digital landscape. Each point should be 20-30 words max.",
+            description: `Generate exactly 6-8 short benefit bullets.
+
+            Rules:
+            - Each benefit must be practical and specific
+            - Focus on real business outcomes, not buzzwords
+            - Tie each feature to a clear advantage for local businesses
+            - Avoid exaggerated promises about rankings or growth`,
             items: {
               type: Type.OBJECT,
               properties: {
                 benefitName: {
                   type: Type.STRING,
-                  description: "e.g., 'Magic Auto-SEO'",
+                  description:
+                    "A short feature name, like 'Auto-SEO Setup' or 'WhatsApp Chat'",
                 },
                 benefitDetail: {
                   type: Type.STRING,
                   description:
-                    "e.g., 'Rank on Google automagically without doing keyword research or hiring an agency.'",
+                    "A concise explanation of how that feature helps local businesses in practice.",
                 },
               },
               required: ["benefitName", "benefitDetail"],
@@ -442,19 +767,35 @@ function getBottomHalfSchema(adjective, category, geography, faqText) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'How to Get Your ${category} Site Online in 3 Steps'`,
+            description: `Generate a clear, practical heading that explains how ${category} businesses in ${geography} can get a website live. Keep it concise, useful, and non-promotional.`,
           },
           steps: {
             type: Type.ARRAY,
-            description: `Generate a 3-step guide written from an objective, third-party advisory perspective. Step 1: Choose a platform (advise them to evaluate the builders above, but explicitly note that Websites.co.in is the most highly recommended for local businesses). Step 2: Setup & Details (explain the general process of registering and filling out basic business info, or consulting with platform experts). Step 3: Launch & Grow (explain how elite platforms—like Websites.co.in—use automation and auto-SEO to make launching effortless for customers).`,
+            description: `Generate 3 steps that explain the process from choosing a platform to launching the site.
+
+            CRITICAL:
+            - Write from an objective, advisory perspective
+            - Explain the practical workflow for ${category} businesses in ${geography}
+            - Mention platforms like Websites.co.in naturally when relevant, but do not force promotion
+            - Vary the wording of the steps across pages
+            - Keep each step concise and actionable
+
+            Suggested flow:
+            1. Choose the right platform
+            2. Add business details and content
+            3. Launch, optimize, and maintain the site`,
             items: {
               type: Type.OBJECT,
               properties: {
-                stepNumber: { type: Type.NUMBER },
-                title: { type: Type.STRING },
+                stepNumber: {
+                  type: Type.NUMBER,
+                },
+                title: {
+                  type: Type.STRING,
+                },
                 description: {
                   type: Type.STRING,
-                  description: "A concise, objective 30-40 word explanation.",
+                  description: `A concise 30-40 word explanation focused on what the business owner should do and why it matters.`,
                 },
               },
               required: ["stepNumber", "title", "description"],
@@ -468,12 +809,41 @@ function getBottomHalfSchema(adjective, category, geography, faqText) {
         properties: {
           heading: {
             type: Type.STRING,
-            description: `e.g., 'Local SEO Strategies for ${category}s in ${geography}'`,
+            description: `
+            Generate a practical, insight-driven heading about local SEO for ${category} businesses in ${geography}.
+
+            Avoid generic phrases. Make it feel relevant and specific to how businesses actually get discovered locally.
+            `,
           },
           paragraphs: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: `Generate exactly 2 massive paragraphs (50-55 words each) on geo-tagging and automated listings in ${geography}.`,
+            description: `
+            Write 2-3 concise paragraphs (40-50 words each) explaining how ${category} businesses in ${geography} can improve their local search visibility.
+
+            CRITICAL:
+            - Cover multiple aspects of local SEO:
+              → Google Business Profile optimization
+              → local keywords and landing pages
+              → reviews and reputation
+              → mobile search behavior
+              → structured data / listings
+
+            - Tie every point to real-world behavior in ${geography}
+            - Explain how customers actually search and choose businesses
+
+            DO NOT:
+            - focus only on "geo-tagging"
+            - repeat generic SEO advice
+            - use vague phrases like "improve rankings"
+
+            STYLE:
+            - Write like a local SEO expert giving practical insights
+            - Keep it grounded, actionable, and relevant
+
+            GOAL:
+            The reader should understand how local SEO works in their specific market and what actually drives visibility.
+            `,
           },
         },
         required: ["heading", "paragraphs"],
@@ -721,7 +1091,7 @@ async function generateJSONContent(adjective, keyword, category, geography) {
   const bottomHalfPrompt = `${basePrompt}\nFocus on the Competitor Comparison, Why Choose Us, How It Works, Local SEO Guide, and FAQs. **THE FAQs PROTOCOL:** For the faqs section, you are strictly forbidden from making up your own questions. You MUST select exactly 12 questions from this exact list:
   ${faqText}
   When answering these 12 questions, seamlessly weave the answers into the context of a ${category} business in ${geography}.`;
-  const bottomSchema = getBottomHalfSchema(adjective, category, geography, faqText);
+  const bottomSchema = getBottomHalfSchema(adjective, category, geography, faqText, competitorsText, randomStyle);
 
   // console.log("1a. Fetching Top Half JSON...");
   // console.log("1b. Fetching Bottom Half JSON...");
