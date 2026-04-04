@@ -4,6 +4,8 @@ import ErrorBoundary from "./components/errorBoundary/ErrorBoundary.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 import HtmlSitemap from "./pages/HtmlSitemap.jsx";
 
+import HubPage from "./pages/HubPage.jsx";
+
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const BlogPage = lazy(() => import("./pages/BlogPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -26,6 +28,10 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
 
             <Route path="/sitemap" element={<HtmlSitemap />} />
+
+
+            <Route path="/blog/category/:slug" element={<HubPage type="category" />} />
+            <Route path="/blog/location/:slug" element={<HubPage type="location" />} />
 
              {/* Coming Soon Pages */}
             <Route path="/about" element={<ComingSoon />} />

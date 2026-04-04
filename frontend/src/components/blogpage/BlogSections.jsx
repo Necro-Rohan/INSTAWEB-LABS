@@ -286,7 +286,13 @@ export const HeroSection = ({ content, post, image }) => (
     <div className="mb-8 flex items-center gap-2 text-sm font-bold tracking-widest uppercase text-[#5c218b]">
       <Link to="/" >Home</Link>
       <ChevronDown className="w-4 h-4 -rotate-90" />
-      <span>{post.category} Guide</span>
+      {/* <span>{post.category} Guide</span> */}
+      <Link 
+      to={`/blog/category/${post.categorySlug || post.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}`} 
+      className="hover:text-blue-600"
+    >
+      {post.category} Guide
+    </Link>
     </div>
     <div className="grid lg:grid-cols-2 gap-16 items-center">
       <div>

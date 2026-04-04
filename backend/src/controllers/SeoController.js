@@ -1,96 +1,3 @@
-// import path from 'path';
-// import fs from 'fs';
-// import { fileURLToPath } from 'url';
-// import { dirname } from 'path';
-// import BlogPost from '../models/BlogPost.model.js';
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
-// export const renderSeoBlogPage = async (req, res) => {
-//   try {
-//     const post = await BlogPost.findOne({ slug: req.params.slug });
-    
-//     const indexPath = path.resolve(__dirname, '../../../frontend/dist/index.html');
-//     let htmlData = fs.readFileSync(indexPath, 'utf8');
-
-//     if (post) {
-//       const articleSchema = {
-//         "@context": "https://schema.org",
-//         "@type": "Article",
-//         "headline": post.h1,
-//         "description": post.metaDescription,
-//         "author": {
-//           "@type": "Organization",
-//           "name": "Website Studio"
-//         }
-//       };
-
-//       let faqSchemaHtml = "";
-//       if (post.content && post.content.faqs && Array.isArray(post.content.faqs.questions) && post.content.faqs.questions.length > 0) {
-//         const faqItems = post.content.faqs.questions.map(faq => ({
-//           "@type": "Question",
-//           "name": faq.question,
-//           "acceptedAnswer": {
-//             "@type": "Answer",
-//             "text": faq.answer
-//           }
-//         }));
-
-//         const faqSchema = {
-//           "@context": "https://schema.org",
-//           "@type": "FAQPage",
-//           "mainEntity": faqItems
-//         };
-        
-//         faqSchemaHtml = `<script type="application/ld+json">\n${JSON.stringify(faqSchema)}\n</script>`;
-//       }
-
-//       const seoTags = `
-//         <title>${post.metaTitle}</title>
-//         <meta name="description" content="${post.metaDescription}" />
-//         <meta property="og:title" content="${post.metaTitle}" />
-//         <meta property="og:description" content="${post.metaDescription}" />
-//         <meta property="og:type" content="article" />
-//         <script type="application/ld+json">
-//           ${JSON.stringify(articleSchema)}
-//         </script>
-//         ${faqSchemaHtml}
-//       `;
-
-//       htmlData = htmlData
-//         .replace(/<title>.*?<\/title>/, "")
-//         .replace("</head>", `${seoTags}\n</head>`);
-      
-//       htmlData = htmlData.replace(
-//         '<div id="root"></div>',
-//         `<div id="root">
-//           <div style="opacity: 0; position: absolute; z-index: -1;">
-//             <h1>${post.h1}</h1>
-//             <p>${post.metaDescription}</p>
-//             ${post.content && post.content.faqs && Array.isArray(post.content.faqs.questions) ? post.content.faqs.questions.map(faq => `
-//               <div>
-//                 <h2>${faq.question}</h2>
-//                 <p>${faq.answer}</p>
-//               </div>
-//             `).join('') : ''}
-//           </div>
-//         </div>`,
-//       );
-      
-//       return res.status(200).send(htmlData);
-        
-//     } else {
-//       htmlData = htmlData.replace(/<title>.*?<\/title>/, `<title>Post Not Found | Website Studio</title>`);
-//       return res.status(404).send(htmlData);
-//     }
-
-//   } catch (err) {
-//     console.error("SEO Injection Error:", err);
-//     res.status(500).send("Server Error occurred while injecting SEO.");
-//   }
-// };
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from "url";
@@ -117,6 +24,56 @@ export const renderSeoBlogPage = async (req, res) => {
     const indexPath = path.resolve(__dirname, '../../../frontend/dist/index.html');
     let htmlData = fs.readFileSync(indexPath, 'utf8');
 
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const baseUrl = `${protocol}://${req.get("host")}`;
+
+    if (req.path.includes('/blog/category/') || req.path.includes('/blog/location/')) {
+      const isLocation = req.path.includes('/location/');
+      const slug = req.params.slug;
+      const page = req.query.page ? parseInt(req.query.page) : 1; // Catch the page number!
+      
+      const query = isLocation ? { geographySlug: slug } : { categorySlug: slug };
+      const samplePost = await BlogPost.findOne(query).select('category geography').lean();
+
+      if (samplePost) {
+        // Append "- Page X" to the title and description if it's paginated
+        const pageSuffix = page > 1 ? ` - Page ${page}` : '';
+        
+        const hubTitle = isLocation 
+          ? `Digital Strategies for ${samplePost.geography} Businesses${pageSuffix}`
+          : `The ${samplePost.category} Digital Growth Playbook${pageSuffix}`;
+          
+        const hubDesc = `Explore proven digital marketing and website strategies for ${isLocation ? samplePost.geography : samplePost.category}.${pageSuffix}`;
+
+        // TRUE CANONICAL FIX: Self-referencing URL WITH the query string
+        const canonicalUrl = page > 1 
+          ? `${baseUrl}${req.path}?page=${page}`
+          : `${baseUrl}${req.path}`;
+
+        const collectionSchema = {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": hubTitle,
+          "description": hubDesc,
+          "url": canonicalUrl
+        };
+
+        htmlData = htmlData
+          .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(hubTitle)} | Websites.co.in</title>`)
+          .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${escapeHtml(hubDesc)}" />`)
+          .replace('<!--SEO_SCHEMA-->', `<script type="application/ld+json">${JSON.stringify(collectionSchema).replace(/</g, '\\u003c')}</script>`)
+          .replace('<!--SEO_CANONICAL-->', `<link rel="canonical" href="${canonicalUrl}" />`)
+          .replace('<!--SEO_SSR_CONTENT-->', '')
+          .replace('<!--SEO_HYDRATION_DATA-->', '');
+        
+        htmlData = htmlData.replace(/<title>Vite \+ React<\/title>/i, "");
+        return res.status(200).send(htmlData);
+      } else {
+        htmlData = htmlData.replace(/<title>.*?<\/title>/, `<title>Hub Not Found | Websites.co.in</title>`);
+        return res.status(404).send(htmlData);
+      }
+    }
+
     if (post) {
       // Sanitization of Core Meta Data
       const safeTitle = escapeHtml(post.metaTitle);
@@ -124,8 +81,6 @@ export const renderSeoBlogPage = async (req, res) => {
       const safeH1 = escapeHtml(post.h1);
       
       // DYNAMIC BASE URL (Environment Safe)
-      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
-      const baseUrl = `${protocol}://${req.get("host")}`;
       const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
 
       //Article Schema

@@ -213,7 +213,7 @@ export default function HomePage() {
                     src={posts[0].coverImage}
                     alt={posts[0].h1}
                     loading="eager"
-                    fetchpriority="high"
+                    fetchPriority="high"
                     className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000"
                   />
 

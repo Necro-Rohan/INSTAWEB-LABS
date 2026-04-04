@@ -4,10 +4,14 @@ import BlogPost from "../models/BlogPost.model.js";
 export const generateSitemap = async (req, res) => {
   try {
     const posts = await BlogPost.find({ status: "published" }).select(
-      "slug updatedAt",
-    );
+      "slug updatedAt categorySlug geographySlug",
+    ).lean();
     const protocol = req.headers["x-forwarded-proto"] || req.protocol;
     const baseUrl = `${protocol}://${req.get("host")}`;
+
+    const uniqueCategories = [...new Set(posts.map(p => p.categorySlug).filter(Boolean))];
+    const uniqueGeographies = [...new Set(posts.map(p => p.geographySlug).filter(Boolean))];
+
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     sitemap += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -15,6 +19,13 @@ export const generateSitemap = async (req, res) => {
     // the homepage/blog index
     sitemap += `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
 
+    uniqueCategories.forEach((slug) => {
+      sitemap += `  <url>\n    <loc>${baseUrl}/blog/category/${slug}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+    });
+    uniqueGeographies.forEach((slug) => {
+      sitemap += `  <url>\n    <loc>${baseUrl}/blog/location/${slug}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+    });
+    
     // all generated blog posts
     posts.forEach((post) => {
       sitemap += `  <url>\n`;
@@ -40,7 +51,7 @@ export const generateLlmsTxt = async (req, res) => {
   try {
     const posts = await BlogPost.find({ status: "published" }).select(
       "slug h1 metaDescription",
-    );
+    ).lean();
    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
    const baseUrl = `${protocol}://${req.get("host")}`;
 

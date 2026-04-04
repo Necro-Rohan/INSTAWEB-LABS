@@ -5,6 +5,7 @@ import BlogPost from "../models/BlogPost.model.js";
 import { generateSEOContentPipeline } from "../services/aiService.js";
 import connectDb from "../../db.js";
 import { generateInternalLinks } from "../utils/internalLinking.js";
+import { normalizeGeography, slugify } from "../utils/geoNormalizer.js";
 
 dotenv.config();
 
@@ -16,13 +17,16 @@ const redisConnection = new Redis(process.env.RENDER_REDIS_URL, {
 
 console.log("Blog Worker is running and waiting for jobs...");
 
-const slugify = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-
 const worker = new Worker(
   "blog-generation-queue-test",
   async (job) => {
     const { keyword, category, geography, adjective } = job.data;
     const slug = job.id;
+
+    let cleaned_geography = normalizeGeography(geography);
+    const geographySlug = slugify(cleaned_geography);
+    const categorySlug = slugify(category);
+
     console.log(`Processing Job ${job.id} for: ${keyword}`);
 
     try {
@@ -30,7 +34,7 @@ const worker = new Worker(
       const generatedData = await generateSEOContentPipeline(
         adjective,
         category,
-        geography,
+        geography, // ai should be able to see the whole geography string (e.g, "boca raton, FL") and use that info to generate better content, but we will store a cleaned/normalized version in the DB for better URL structure and display purposes
       );
 
       let coverImage =
@@ -51,7 +55,7 @@ const worker = new Worker(
       const currentPostData = {
         slug: slug,
         category: category,
-        geography: geography,
+        geography: cleaned_geography,
         h1: generatedData.h1,
         coverImage: coverImage,
       };
@@ -72,9 +76,10 @@ const worker = new Worker(
             content: generatedData.content,
             images: generatedData.images,
             coverImage: coverImage,
+            geography: cleaned_geography,
             internalLinks: internalLinks,
-            categorySlug: slugify(category),
-            geographySlug: slugify(geography),
+            categorySlug: categorySlug,
+            geographySlug: geographySlug,
             status: "published", // Turn the yellow badge green!
           },
         },
@@ -82,8 +87,8 @@ const worker = new Worker(
       );
 
       console.log(`Job ${job.id} successfully completed and updated in DB!`);
-
       return { success: true, slug: slug };
+      
     } catch (error) {
       console.error(`Job ${job.id} failed:`, error.message);
 
