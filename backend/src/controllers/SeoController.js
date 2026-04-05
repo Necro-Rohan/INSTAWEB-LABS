@@ -100,9 +100,15 @@ export const renderSeoBlogPage = async (req, res) => {
       const page = req.query.page ? parseInt(req.query.page) : 1; // Catch the page number!
       
       const query = isLocation ? { geographySlug: slug } : { categorySlug: slug };
-      const samplePost = await BlogPost.findOne(query).select('category geography').lean();
 
-      if (samplePost) {
+      const hubPosts = await BlogPost.find(query)
+        .select("category geography h1 slug")
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean();
+
+      if (hubPosts.length > 0) {
+        const samplePost = hubPosts[0];
         const pageSuffix = page > 1 ? ` - Page ${page}` : '';
         
         const hubTitle = isLocation 
@@ -123,26 +129,41 @@ export const renderSeoBlogPage = async (req, res) => {
           "url": canonicalUrl
         };
 
+        const insightText = isLocation
+          ? `Based on our analysis of <strong>${hubPosts.length}+ digital blueprints</strong>, businesses in <strong>${samplePost.geography}</strong> typically prioritize mobile-first experiences, integrated local SEO visibility, and localized trust signals to dominate their regional market.`
+          : `Based on our analysis of <strong>${hubPosts.length}+ digital blueprints</strong>, <strong>${samplePost.category}</strong> operators rely heavily on conversion-focused layouts, integrated booking systems, and rapid load times to maximize their lead generation.`;
+
+        const dynamicLinksHtml = hubPosts.map(post => 
+          `<li style="margin-bottom: 0.5rem;"><a href="/blog/${post.slug}" title="${escapeHtml(post.h1)}">${escapeHtml(post.h1)}</a></li>`
+        ).join('');
+
         const hubSsrContent = `
           <main id="seo-content" style="padding: 2rem; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
             
             <h1>${escapeHtml(hubTitle)}</h1>
             <p>${escapeHtml(hubDesc)}</p>
 
-            <section>
-              <h2>Market Insights</h2>
-              <p>
-                Based on our analysis of multiple industries and locations, this hub provides data-driven strategies,
-                platform comparisons, and real-world implementation patterns tailored to this segment.
-              </p>
+            <section aria-labelledby="insights-heading" style="margin-top: 2rem;">
+              <h2 id="insights-heading">Market Insights</h2>
+              <p>${insightText}</p>
             </section>
 
-            <section>
-              <h2>Explore Top Guides</h2>
+            <section aria-labelledby="guides-heading" style="margin-top: 2rem;">
+              <h2 id="guides-heading">Explore Top Guides</h2>
               <p>
-                Discover detailed breakdowns, comparisons, and actionable insights across various business types
-                and regions to understand what actually works.
+                Discover detailed breakdowns, comparisons, and actionable insights to understand what actually works in your market:
               </p>
+              
+              <nav style="margin-top: 1rem;">
+                <ul style="list-style-type: disc; padding-left: 20px;">
+                  ${dynamicLinksHtml}
+                </ul>
+              </nav>
+
+              <div style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: flex; gap: 1.5rem; font-size: 0.9rem;">
+                <strong><a href="/categories" title="View All Industries">&larr; Browse All Categories</a></strong>
+                <strong><a href="/" title="Website Studio Home">Growth Hub Home</a></strong>
+              </div>
             </section>
 
           </main>
