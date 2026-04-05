@@ -5,6 +5,8 @@ import { MapPin, Mail, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
 export default function ContactPage() {
   const [status, setStatus] = useState("idle"); // idle, submitting, success, error
 
+  const STATICFORMS_API_KEY = import.meta.env.VITE_STATICFORMS_API_KEY;
+
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "Contact Us | Website Studio";
@@ -15,26 +17,36 @@ export default function ContactPage() {
     setStatus("submitting");
 
     const form = e.target;
-    const data = new FormData(form);
+    
+    // the payload exactly as StaticForms.dev expects it(from their documentation).
+    const formData = new FormData();
+    formData.append("apiKey", STATICFORMS_API_KEY);
+    formData.append("name", `${form.firstName.value} ${form.lastName.value}`);
+    formData.append("email", form.email.value);
+    formData.append("message", form.message.value);
+    formData.append("subject", "New Contact Form Submission - Website Studio");
+    formData.append("replyTo", "@"); // Tell StaticForms to use the submitted 'email' field as the Reply-To address
 
     try {
-      // REPLACE THIS URL WITH YOUR ACTUAL FORMSPREE ENDPOINT
-      const response = await fetch("https://formspree.io/f/maqllavk", {
+      const response = await fetch("https://api.staticforms.dev/submit", {
         method: "POST",
-        body: data,
+        body: formData,
         headers: {
           Accept: "application/json",
         },
       });
 
-      if (response.ok) {
+      const json = await response.json();
+
+      if (response.ok && json.success) {
         setStatus("success");
         form.reset();
       } else {
+        console.error("StaticForms.dev Error:", json.message);
         setStatus("error");
       }
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("Fetch Error:", error);
       setStatus("error");
     }
   };
@@ -80,7 +92,6 @@ export default function ContactPage() {
                 <h3 className="text-xl font-bold mb-6">Direct Lines</h3>
                 
                 <div className="space-y-6">
-                  {/* Updated Email to the real one */}
                   <a href="mailto:pseo.websitebuilder@gmail.com" className="flex items-start gap-4 group">
                     <Mail className="w-5 h-5 text-[#e0b6ff] mt-0.5 group-hover:scale-110 transition-transform" />
                     <div>
@@ -119,26 +130,25 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form className="space-y-6" onSubmit={handleSubmit}>
-                  {/* 'name' attributes is used as formspree requires it on inputs to identify the fields in the email */}
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700">First Name</label>
-                      <input type="text" name="First Name" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all" placeholder="John" />
+                      <input type="text" name="firstName" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all" placeholder="John" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700">Last Name</label>
-                      <input type="text" name="Last Name" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all" placeholder="Doe" />
+                      <input type="text" name="lastName" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all" placeholder="Doe" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700">Work Email</label>
-                    <input type="email" name="Email" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all" placeholder="john@company.com" />
+                    <input type="email" name="email" required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all" placeholder="john@company.com" />
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700">How can we help?</label>
-                    <textarea name="Message" required rows="5" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all resize-none" placeholder="Tell us about your project or issue..."></textarea>
+                    <textarea name="message" required rows="5" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5c218b] focus:border-transparent transition-all resize-none" placeholder="Tell us about your project or issue..."></textarea>
                   </div>
 
                   {status === "error" && (
