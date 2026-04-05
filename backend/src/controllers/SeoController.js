@@ -26,6 +26,74 @@ export const renderSeoBlogPage = async (req, res) => {
     const protocol = req.headers["x-forwarded-proto"] || req.protocol;
     const baseUrl = `${protocol}://${req.get("host")}`;
 
+    // HOME PAGE SEO INJECTION INTERCEPTOR
+    if (req.path === '/') {
+      const homeTitle = "Website Studio | Best Website Builder Reviews & Guides";
+      const homeDesc = "Actionable growth strategies, expert platform reviews, and local SEO playbooks to help your business dominate the digital market.";
+      
+      const websiteSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Website Studio",
+        "url": baseUrl,
+        "description": homeDesc
+      };
+
+      const homeSsrContent = `
+        <main id="seo-content" style="padding: 2rem; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
+          <h1>Website Studio: Website Builder Reviews & Growth Hub for Local Businesses</h1>
+          <p>${homeDesc}</p>
+          <p><strong>Trusted by businesses across 300+ cities and 100+ industries to scale their digital presence.</strong></p>
+          
+          <section aria-labelledby="about-heading" style="margin-top: 2rem;">
+            <h2 id="about-heading">Empowering Local Businesses with Digital Architecture</h2>
+            <p>
+              At Website Studio, we analyze thousands of successful digital blueprints to provide you with actionable, localized growth strategies. Whether you run a restaurant, clinic, or service-based business, our comprehensive guides break down exactly what works in your specific market.
+            </p>
+          </section>
+
+          <section aria-labelledby="reviews-heading" style="margin-top: 2rem;">
+            <h2 id="reviews-heading">Expert Website Builder Reviews and Comparisons</h2>
+            <p>
+              Choosing the right platform is critical. We provide in-depth reviews and side-by-side comparisons of the top website builders. Our data-driven approach evaluates mobile responsiveness, integrated booking systems, e-commerce readiness, and local SEO capabilities so you can make the best technical choice for your operations.
+            </p>
+          </section>
+
+          <section aria-labelledby="seo-heading" style="margin-top: 2rem;">
+            <h2 id="seo-heading">Local SEO & Market Intelligence</h2>
+            <p>
+              Traffic is meaningless if it doesn't convert. Our playbooks go beyond basic setup, offering deep dives into hyper-local SEO tactics, Google Maps optimization, and community-focused trust signals. Learn how to structure your site architecture to capture high-intent local search traffic.
+            </p>
+          </section>
+
+          <section aria-labelledby="explore-heading" style="margin-top: 2rem;">
+            <h2 id="explore-heading">Explore Top Local Growth Hubs</h2>
+            <nav>
+              <ul style="list-style-type: none; padding: 0;">
+                <li style="margin-bottom: 0.5rem;"><a href="/blog/category/locksmith" title="Locksmith Website Builder Guides">Locksmith Digital Strategies</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="/blog/category/salon" title="Salon Website Builder Guides">Salon Growth Playbooks</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="/blog/location/santa-monica" title="Santa Monica Business Strategies">Santa Monica Local SEO</a></li>
+                <li style="margin-bottom: 0.5rem;"><a href="/blog/location/cape-girardeau" title="Cape Girardeau Local SEO">Cape Girardeau Business Strategies</a></li>
+                <li style="margin-top: 1rem;"><strong><a href="/categories" title="All Industries">View All Industries & Locations &rarr;</a></strong></li>
+              </ul>
+            </nav>
+          </section>
+        </main>
+      `;
+
+      htmlData = htmlData
+        .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(homeTitle)}</title>`)
+        .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${escapeHtml(homeDesc)}" />`)
+        .replace('<!--SEO_SCHEMA-->', `<script type="application/ld+json">${JSON.stringify(websiteSchema).replace(/</g, '\\u003c')}</script>`)
+        .replace('<!--SEO_CANONICAL-->', `<link rel="canonical" href="${baseUrl}/" />`)
+        .replace('<!--SEO_SSR_CONTENT-->', homeSsrContent)
+        .replace('<!--SEO_HYDRATION_DATA-->', '');
+
+      return res.status(200).send(htmlData);
+    }
+
+    // HUB PAGES SEO INJECTION INTERCEPTOR
+
     if (req.path.includes('/blog/category/') || req.path.includes('/blog/location/')) {
       const isLocation = req.path.includes('/location/');
       const slug = req.params.slug;
@@ -35,7 +103,6 @@ export const renderSeoBlogPage = async (req, res) => {
       const samplePost = await BlogPost.findOne(query).select('category geography').lean();
 
       if (samplePost) {
-        // Append "- Page X" to the title and description if it's paginated
         const pageSuffix = page > 1 ? ` - Page ${page}` : '';
         
         const hubTitle = isLocation 
@@ -44,7 +111,6 @@ export const renderSeoBlogPage = async (req, res) => {
           
         const hubDesc = `Explore proven digital marketing and website strategies for ${isLocation ? samplePost.geography : samplePost.category}.${pageSuffix}`;
 
-        // TRUE CANONICAL FIX: Self-referencing URL WITH the query string
         const canonicalUrl = page > 1 
           ? `${baseUrl}${req.path}?page=${page}`
           : `${baseUrl}${req.path}`;
@@ -81,7 +147,7 @@ export const renderSeoBlogPage = async (req, res) => {
       const safeDesc = escapeHtml(post.metaDescription);
       const safeH1 = escapeHtml(post.h1);
       
-      // DYNAMIC BASE URL (Environment Safe)
+      // DYNAMIC BASE URL 
       const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
 
       //Article Schema

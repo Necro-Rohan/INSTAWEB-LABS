@@ -159,7 +159,7 @@ export default function HomePage() {
             className="text-5xl md:text-6xl font-medium leading-[1.05] tracking-tight text-slate-900 mb-6 italic"
             style={{ fontFamily: "'Newsreader', serif" }}
           >
-            The Growth Hub
+            Website Studio: The Growth Hub
           </h1>
           <p className="text-xl leading-relaxed text-slate-600 w-full">
             Actionable growth strategies, expert platform reviews, and local SEO

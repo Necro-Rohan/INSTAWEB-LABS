@@ -3,6 +3,9 @@ import { renderSeoBlogPage } from "../controllers/SeoController.js";
 
 const router = express.Router();
 
+// SEO-Optimized Home Page
+router.get("/", renderSeoBlogPage);
+
 // Hub Pages (Added so SeoController can intercept them!)
 router.get("/blog/category/:slug", renderSeoBlogPage);
 router.get("/blog/location/:slug", renderSeoBlogPage);
