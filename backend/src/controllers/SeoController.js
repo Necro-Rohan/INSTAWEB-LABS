@@ -123,12 +123,37 @@ export const renderSeoBlogPage = async (req, res) => {
           "url": canonicalUrl
         };
 
+        const hubSsrContent = `
+          <main id="seo-content" style="padding: 2rem; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
+            
+            <h1>${escapeHtml(hubTitle)}</h1>
+            <p>${escapeHtml(hubDesc)}</p>
+
+            <section>
+              <h2>Market Insights</h2>
+              <p>
+                Based on our analysis of multiple industries and locations, this hub provides data-driven strategies,
+                platform comparisons, and real-world implementation patterns tailored to this segment.
+              </p>
+            </section>
+
+            <section>
+              <h2>Explore Top Guides</h2>
+              <p>
+                Discover detailed breakdowns, comparisons, and actionable insights across various business types
+                and regions to understand what actually works.
+              </p>
+            </section>
+
+          </main>
+        `;
+
         htmlData = htmlData
           .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(hubTitle)} | Websites.co.in</title>`)
           .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${escapeHtml(hubDesc)}" />`)
           .replace('<!--SEO_SCHEMA-->', `<script type="application/ld+json">${JSON.stringify(collectionSchema).replace(/</g, '\\u003c')}</script>`)
           .replace('<!--SEO_CANONICAL-->', `<link rel="canonical" href="${canonicalUrl}" />`)
-          .replace('<!--SEO_SSR_CONTENT-->', '')
+          .replace('<!--SEO_SSR_CONTENT-->', hubSsrContent)
           .replace('<!--SEO_HYDRATION_DATA-->', '');
         
         htmlData = htmlData.replace(/<title>Vite \+ React<\/title>/i, "");
