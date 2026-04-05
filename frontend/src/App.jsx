@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/errorBoundary/ErrorBoundary.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 import HtmlSitemap from "./pages/HtmlSitemap.jsx";
+import ContactPage from "./pages/ContactPage.jsx";
 
 import HubPage from "./pages/HubPage.jsx";
 
@@ -35,7 +36,7 @@ function App() {
 
              {/* Coming Soon Pages */}
             <Route path="/about" element={<ComingSoon />} />
-            <Route path="/contact" element={<ComingSoon />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route path="/editorial-guidelines" element={<ComingSoon />} />
             <Route path="/categories" element={<ComingSoon />} />
             <Route path="/affiliate-disclosure" element={<ComingSoon />} />
