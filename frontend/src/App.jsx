@@ -4,6 +4,11 @@ import ErrorBoundary from "./components/errorBoundary/ErrorBoundary.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 import HtmlSitemap from "./pages/HtmlSitemap.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import TermsOfService from "./pages/TermsOfService.jsx";
+import CookiePolicy from "./pages/CookiePolicy.jsx";
+import AffiliateDisclosure from "./pages/AffiliateDisclosure.jsx";
+import EditorialGuidelines from "./pages/EditorialGuidelines.jsx";
 
 import HubPage from "./pages/HubPage.jsx";
 
@@ -34,15 +39,14 @@ function App() {
             <Route path="/blog/category/:slug" element={<HubPage type="category" />} />
             <Route path="/blog/location/:slug" element={<HubPage type="location" />} />
 
-             {/* Coming Soon Pages */}
             <Route path="/about" element={<ComingSoon />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/editorial-guidelines" element={<ComingSoon />} />
+            <Route path="/editorial-guidelines" element={<EditorialGuidelines />} />
             <Route path="/categories" element={<ComingSoon />} />
-            <Route path="/affiliate-disclosure" element={<ComingSoon />} />
-            <Route path="/privacy-policy" element={<ComingSoon />} />
-            <Route path="/terms-of-service" element={<ComingSoon />} />
-            <Route path="/cookie-policy" element={<ComingSoon />} />
+            <Route path="/affiliate-disclosure" element={<AffiliateDisclosure />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>
