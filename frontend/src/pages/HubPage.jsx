@@ -82,20 +82,97 @@ export default function HubPage({ type }) {
     );
   }
 
+  // SKELETON LOADING STATE
   if (loading || !hubData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f7f9fb] animate-pulse text-[#5c218b] font-bold">
-        Loading Hub Insights...
+      <div className="bg-[#f7f9fb] min-h-screen flex flex-col">
+        <Navbar />
+        <main className="grow">
+          {/* Skeleton Hero Section */}
+          <div className="bg-[#191c1e] pt-24 pb-20 px-6 border-b-12 border-[#5c218b]">
+            <div className="max-w-7xl mx-auto animate-pulse">
+              <div className="w-48 h-4 bg-slate-700/50 rounded mb-6"></div>
+              <div className="grid lg:grid-cols-12 gap-12 items-center">
+                <div className="lg:col-span-8 space-y-4">
+                  <div className="h-14 bg-slate-700/50 rounded-xl w-3/4"></div>
+                  <div className="h-14 bg-slate-700/50 rounded-xl w-1/2"></div>
+                  <div className="h-6 bg-slate-700/50 rounded w-full mt-6"></div>
+                  <div className="h-6 bg-slate-700/50 rounded w-5/6"></div>
+                </div>
+                <div className="lg:col-span-4 bg-white/5 border border-white/10 p-8 rounded-3xl space-y-6">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-12 h-12 bg-slate-700/50 rounded-full shrink-0"></div>
+                    <div className="space-y-2 w-full">
+                      <div className="h-8 bg-slate-700/50 rounded w-16"></div>
+                      <div className="h-4 bg-slate-700/50 rounded w-24"></div>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <div className="w-12 h-12 bg-slate-700/50 rounded-full shrink-0"></div>
+                    <div className="space-y-2 w-full">
+                      <div className="h-8 bg-slate-700/50 rounded w-16"></div>
+                      <div className="h-4 bg-slate-700/50 rounded w-24"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Skeleton Information Gain Section */}
+          <div className="max-w-7xl mx-auto px-6 py-16 grid lg:grid-cols-3 gap-12 border-b border-slate-100">
+            <div className="lg:col-span-2 space-y-6 animate-pulse">
+              <div className="h-10 bg-slate-200 rounded-lg w-2/3"></div>
+              <div className="space-y-3">
+                <div className="h-5 bg-slate-200 rounded w-full"></div>
+                <div className="h-5 bg-slate-200 rounded w-full"></div>
+                <div className="h-5 bg-slate-200 rounded w-5/6"></div>
+              </div>
+            </div>
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 animate-pulse space-y-6">
+              <div className="h-6 bg-slate-200 rounded w-1/2 mb-6"></div>
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="flex justify-between items-center">
+                  <div className="h-5 bg-slate-200 rounded w-1/3"></div>
+                  <div className="h-6 bg-slate-200 rounded-full w-20"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Skeleton Link Grid */}
+          <div className="max-w-7xl mx-auto px-6 py-16">
+            <div className="h-8 bg-slate-200 rounded w-64 mb-10 animate-pulse"></div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm animate-pulse">
+                  <div className="aspect-video w-full bg-slate-200"></div>
+                  <div className="p-6 md:p-8 space-y-4">
+                    <div className="h-6 bg-slate-200 rounded w-full"></div>
+                    <div className="h-6 bg-slate-200 rounded w-3/4"></div>
+                    <div className="space-y-2 mt-4">
+                      <div className="h-4 bg-slate-200 rounded w-full"></div>
+                      <div className="h-4 bg-slate-200 rounded w-5/6"></div>
+                    </div>
+                    <div className="h-4 bg-slate-200 rounded w-32 mt-6"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
+  // ACTIVE LOADED STATE
   return (
     <div className="bg-[#f7f9fb] text-[#191c1e] font-sans antialiased min-h-screen flex flex-col">
       <Navbar />
 
       <main className="grow">
-        {/* Hub Hero Section (The "Value" Layer) */}
+        {/* Hub Hero Section */}
         <div className="bg-[#191c1e] text-white pt-24 pb-20 px-6 border-b-12 border-[#5c218b]">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center gap-2 text-sm font-bold tracking-widest uppercase text-[#e0b6ff] mb-6">
